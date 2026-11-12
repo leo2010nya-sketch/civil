@@ -1,0 +1,129 @@
+{
+  "version": "5.1",
+  "date": "2026-11-11",
+  "engine": {
+    "passed": 138,
+    "suites": [
+      {
+        "passed": 12,
+        "suite": "society integration checks passed."
+      },
+      {
+        "passed": 8,
+        "suite": "expansion, settlement and naming checks passed."
+      },
+      {
+        "passed": 20,
+        "suite": "politics territory and war-objective checks passed."
+      },
+      {
+        "passed": 13,
+        "suite": "governance and inheritance checks passed."
+      },
+      {
+        "passed": 10,
+        "suite": "third-draft engine checks passed."
+      },
+      {
+        "passed": 15,
+        "suite": "progression, industrialization and resistance checks passed."
+      },
+      {
+        "passed": 21,
+        "suite": "systems engine checks passed."
+      },
+      {
+        "passed": 12,
+        "suite": "city, currency and exploration engine checks passed."
+      },
+      {
+        "passed": 16,
+        "suite": "terrain minerals and macroeconomic checks passed."
+      },
+      {
+        "passed": 11,
+        "suite": "warfare and era checks passed."
+      }
+    ],
+    "latestPoliticsTerritoryRecheck": 20
+  },
+  "browser": {
+    "passed": 246,
+    "suites": [
+      {
+        "suite": "smoke",
+        "passed": 26,
+        "errors": []
+      },
+      {
+        "suite": "city-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "progression-smoke",
+        "passed": 20,
+        "errors": []
+      },
+      {
+        "suite": "v4-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "expansion-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "systems-smoke",
+        "passed": 21,
+        "errors": []
+      },
+      {
+        "suite": "map-cache-smoke",
+        "passed": 36,
+        "errors": []
+      },
+      {
+        "suite": "governance-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "land-economy-smoke",
+        "passed": 28,
+        "errors": []
+      },
+      {
+        "suite": "politics-territory-smoke",
+        "passed": 27,
+        "errors": []
+      }
+    ],
+    "runtimeErrors": []
+  },
+  "features": [
+    "persistent regional dissatisfaction, strikes, revolts, casualties, real secession and timed relief actions",
+    "noble refusal affects actual collection, public execution, reforms and recruitment",
+    "seeded foreign expansion with paid resources, migration and real map ownership",
+    "explicit attacker and defender war goals with real city transfers and twenty-year commercial tariffs",
+    "conditional four-year negotiated annexation and twenty-five-year local integration"
+  ],
+  "saveCompatibility": "existing saves migrate social pressure, city lists, expansion schedules, treaties and war goals; isolated browser tests restore original saves",
+  "limitations": [
+    "capital and final player city protected; no state-destruction conclusion",
+    "city-centered territory and aggregate foreign development, without tactical fronts or a complete foreign strategic AI",
+    "foreign aggregate cities materialize representative infrastructure when acquired; former player assets retain their identity",
+    "controlled scenarios and regressions do not establish complete long-run game balance"
+  ],
+  "screenshots": [
+    "artifacts/v51-01-revolt-warning.png",
+    "artifacts/v51-02-social-affairs.png",
+    "artifacts/v51-03-independent-city.png",
+    "artifacts/v51-04-war-objective.png",
+    "artifacts/v51-05-peaceful-annexation.png",
+    "artifacts/v51-06-mobile-social.png",
+    "artifacts/v51-07-mobile-diplomacy.png"
+  ]
+}

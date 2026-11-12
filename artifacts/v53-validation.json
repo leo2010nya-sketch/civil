@@ -1,0 +1,101 @@
+{
+  "version": "5.3",
+  "date": "2026-11-12",
+  "engine": {
+    "passed": 164,
+    "suites": [
+      {
+        "passed": 10,
+        "suite": "third-draft engine checks passed."
+      },
+      {
+        "passed": 12,
+        "suite": "city, currency and exploration engine checks passed."
+      },
+      {
+        "passed": 12,
+        "suite": "society integration checks passed."
+      },
+      {
+        "passed": 11,
+        "suite": "warfare and era checks passed."
+      },
+      {
+        "passed": 15,
+        "suite": "progression, industrialization and resistance checks passed."
+      },
+      {
+        "passed": 21,
+        "suite": "systems engine checks passed."
+      },
+      {
+        "passed": 20,
+        "suite": "politics territory and war-objective checks passed."
+      },
+      {
+        "passed": 13,
+        "suite": "governance and inheritance checks passed."
+      },
+      {
+        "passed": 16,
+        "suite": "terrain minerals and macroeconomic checks passed."
+      },
+      {
+        "passed": 8,
+        "suite": "expansion, settlement and naming checks passed."
+      },
+      {
+        "passed": 18,
+        "suite": "shared foreign rules and adaptive scheduling checks passed."
+      },
+      {
+        "passed": 8,
+        "suite": "policy initiation cost checks passed."
+      }
+    ]
+  },
+  "browser": {
+    "passed": 103,
+    "scope": "targeted regressions for policy, construction, progression, finance and new initiation costs",
+    "suites": [
+      {
+        "suite": "smoke",
+        "passed": 26,
+        "errors": []
+      },
+      {
+        "suite": "progression-smoke",
+        "passed": 20,
+        "errors": []
+      },
+      {
+        "suite": "expansion-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "systems-smoke",
+        "passed": 21,
+        "errors": []
+      },
+      {
+        "suite": "policy-cost-smoke",
+        "passed": 14,
+        "errors": []
+      }
+    ],
+    "runtimeErrors": []
+  },
+  "features": [
+    "nonzero initiation costs even for basic community policies",
+    "pre-currency food and wood organization expense; monetary treasury expense scaled by scope and complexity",
+    "combined organization, clause and executor costs previewed and deducted once",
+    "paid substantive revisions, free renaming and preview, no refunds or duplicate fees for pause/resume",
+    "live affordability checks and disabled submission; actual cumulative spending and save persistence"
+  ],
+  "saveCompatibility": "existing policies are not charged retroactively; old spending is not invented; browser test saves restored",
+  "screenshots": [
+    "artifacts/v53-01-policy-cost.png",
+    "artifacts/v53-02-mobile-policy-cost.png"
+  ]
+}

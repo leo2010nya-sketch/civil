@@ -1,0 +1,144 @@
+{
+  "passed": 36,
+  "checks": [
+    "same-state updates preserve warm caches",
+    "stationary animated frames reuse all four static layers",
+    "resource and population changes do not rebuild static layers",
+    "selection and data overlays preserve static layers",
+    "cached/live visual parity: inheritance village view",
+    "cached/live visual parity: region",
+    "cached/live visual parity: world",
+    "new building rebuilds surface and objects only",
+    "construction progress uses a live reference without cache rebuild",
+    "completion refreshes static building sprite",
+    "failure removes cached sprite",
+    "cached/live visual parity: failed project",
+    "type size and position changes refresh map",
+    "cached/live visual parity: windmill interleaved with trees",
+    "windmills smoke water and people remain animated",
+    "each animated building remains live",
+    "mills fire smoke and tram each change their actual sprite over time",
+    "cut forest updates stumps and trees only",
+    "exploration radius mutation refreshes objects and fog",
+    "new exploration exposes foreign city and refreshes fog",
+    "settlement relocation refreshes all affected ground layers",
+    "era transition refreshes buildings and roads without rebuilding terrain",
+    "cached/live visual parity: industrial architecture",
+    "moving camera does not allocate viewport caches",
+    "camera snaps and caches stay stable after pan",
+    "cached/live visual parity: zoomed and panned",
+    "same seed different save releases stale city layers",
+    "cached/live visual parity: pioneer",
+    "cached/live visual parity: dense mixed sprites and occlusion",
+    "static object memory budget falls back to live runs",
+    "cached/live visual parity: memory fallback",
+    "mobile resize regenerates correct-sized layers",
+    "cached/live visual parity: mobile",
+    "coordinate mapping stays correct after resize",
+    "caches are renderer-only and never enter save state",
+    "destroy releases cached canvas backing stores"
+  ],
+  "parity": [
+    {
+      "name": "inheritance village view",
+      "meanChannelError": 0.055308641975308645,
+      "pixelsOver3": 0.000712962962962963,
+      "max": 20
+    },
+    {
+      "name": "region",
+      "meanChannelError": 0.04893621399176955,
+      "pixelsOver3": 0.001101851851851852,
+      "max": 30
+    },
+    {
+      "name": "world",
+      "meanChannelError": 0.003794238683127572,
+      "pixelsOver3": 0.0000308641975308642,
+      "max": 12
+    },
+    {
+      "name": "failed project",
+      "meanChannelError": 0.055685185185185185,
+      "pixelsOver3": 0.0007469135802469135,
+      "max": 20
+    },
+    {
+      "name": "windmill interleaved with trees",
+      "meanChannelError": 0.05574588477366255,
+      "pixelsOver3": 0.0007808641975308642,
+      "max": 20
+    },
+    {
+      "name": "industrial architecture",
+      "meanChannelError": 0.057494855967078186,
+      "pixelsOver3": 0.0007839506172839506,
+      "max": 20
+    },
+    {
+      "name": "zoomed and panned",
+      "meanChannelError": 0.04941872427983539,
+      "pixelsOver3": 0.0003950617283950617,
+      "max": 17
+    },
+    {
+      "name": "pioneer",
+      "meanChannelError": 0.03148559670781893,
+      "pixelsOver3": 0.000515432098765432,
+      "max": 20
+    },
+    {
+      "name": "dense mixed sprites and occlusion",
+      "meanChannelError": 0.034473251028806585,
+      "pixelsOver3": 0.0007098765432098765,
+      "max": 20
+    },
+    {
+      "name": "memory fallback",
+      "meanChannelError": 0.005412551440329218,
+      "pixelsOver3": 0.0004660493827160494,
+      "max": 20
+    },
+    {
+      "name": "mobile",
+      "meanChannelError": 0.07094422165512212,
+      "pixelsOver3": 0.0007655851257746992,
+      "max": 17
+    }
+  ],
+  "benchmarks": [
+    {
+      "fixture": "inheritance",
+      "raw": 22.625,
+      "cached": 0.4083333338300387,
+      "reductionPercent": 98.19521178417662,
+      "memory": {
+        "terrainBuilds": 11,
+        "surfaceBuilds": 18,
+        "objectBuilds": 19,
+        "fogBuilds": 183,
+        "hits": 1004,
+        "pixels": 1274541,
+        "objectPixels": 626541,
+        "objectPixelLimit": 8388608
+      }
+    },
+    {
+      "fixture": "large-city",
+      "raw": 41.75833333532015,
+      "cached": 3.9375,
+      "reductionPercent": 90.57074436285136,
+      "memory": {
+        "terrainBuilds": 12,
+        "surfaceBuilds": 19,
+        "objectBuilds": 20,
+        "fogBuilds": 313,
+        "hits": 1516,
+        "pixels": 3288657,
+        "objectPixels": 2640657,
+        "objectPixelLimit": 8388608
+      }
+    }
+  ],
+  "errors": []
+}

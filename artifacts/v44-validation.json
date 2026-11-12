@@ -1,0 +1,66 @@
+{
+  "version": "4.4",
+  "engine": {
+    "passed": 102,
+    "groups": [
+      "10 third-draft engine checks passed.",
+      "11 warfare and era checks passed.",
+      "12 city, currency and exploration engine checks passed.",
+      "12 society integration checks passed.",
+      "15 progression, industrialization and resistance checks passed.",
+      "21 systems engine checks passed.",
+      "13 governance and inheritance checks passed.",
+      "8 expansion, settlement and naming checks passed."
+    ]
+  },
+  "browser": {
+    "passed": 191,
+    "suites": [
+      {
+        "suite": "smoke",
+        "passed": 26,
+        "errors": []
+      },
+      {
+        "suite": "city-browser",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "progression-smoke",
+        "passed": 20,
+        "errors": []
+      },
+      {
+        "suite": "v4-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "expansion-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "systems-smoke",
+        "passed": 21,
+        "errors": []
+      },
+      {
+        "suite": "map-cache-smoke",
+        "passed": 36,
+        "errors": []
+      },
+      {
+        "suite": "governance-smoke",
+        "passed": 22,
+        "errors": []
+      }
+    ]
+  },
+  "notes": [
+    "Randomized inherited institutions apply to new inheritance games. Existing saved progress and currency choices are retained.",
+    "Population tests cover each city separately, migration, completed housing, starvation, and existing overcrowded saves.",
+    "Automation remains a simplified regional plan rather than road-network or individual-agent simulation."
+  ]
+}

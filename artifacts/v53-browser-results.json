@@ -1,0 +1,20 @@
+{
+  "passed": 14,
+  "checks": [
+    "an empty policy cannot be submitted",
+    "basic policy clearly previews a nonzero initiation cost before currency",
+    "submitting pays the exact previewed food and timber once",
+    "policy feedback shows the actual cumulative investment",
+    "renaming an unchanged policy shows zero additional payment",
+    "name-only confirmation neither spends nor rewrites payment history",
+    "a depleted resource immediately disables submission and shows the shortage",
+    "replenishing reserves re-enables the same draft without rebuilding the form",
+    "a monetary country pays fiscal organization expenses and scopes them by population",
+    "a substantive revision previews its own nonzero adjustment payment",
+    "revision deducts treasury and adds to recorded investment",
+    "save reload retains real paid amounts",
+    "mobile cost preview and confirmation remain within the screen",
+    "no browser runtime exceptions"
+  ],
+  "errors": []
+}

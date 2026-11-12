@@ -1,0 +1,27 @@
+{
+  "passed": 21,
+  "checks": [
+    "HUD warehouse opens a real stock capacity and flows inventory",
+    "foreign country cards show growing population and economy",
+    "pre-currency trade editor has independent import and export quantities without monetary prices",
+    "player-selected barter plan reaches the saved engine orders",
+    "configured route reports actual bilateral goods deliveries",
+    "currency trade preview prices both directions and the destination tariff",
+    "trade executes money settlement and actual foreign tariffs",
+    "invalid simultaneous import and export is rejected without changing orders",
+    "tax adjustment gives immediate quantified feedback",
+    "tax panel shows actual cumulative collections and production burden",
+    "policy feedback shows applied effects and separate regional coverage",
+    "resource production building starts at the actual clicked map position",
+    "completed resource building supplies actual stock shown in the warehouse",
+    "late development retains all basic construction options with appropriate naming",
+    "seven resource and storage buildings have distinct visible sprites",
+    "automatic battles expose paid costs casualties and supply in the military panel",
+    "mobile HUD warehouse button and inventory remain inside the screen",
+    "mobile trade quantity fields remain usable without horizontal overflow",
+    "neighbor growth and different system frequencies run in the actual browser simulation",
+    "save reload preserves chosen trade inventory tax war and system timers",
+    "no browser runtime exceptions"
+  ],
+  "errors": []
+}

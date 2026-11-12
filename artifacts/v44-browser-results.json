@@ -1,0 +1,28 @@
+{
+  "passed": 22,
+  "checks": [
+    "inheritance preview describes variable city and country counts",
+    "new inheritance has currency tax municipal coverage and capital-centered camera",
+    "foreign satellite cities have actual map sprites and labels",
+    "clicking a satellite selects its owning country",
+    "diplomacy displays the number of foreign cities",
+    "each city shows housing and its own population growth limit",
+    "automation exposes storage civic industry commerce and defense controls",
+    "automation panel shows a local prioritized plan instead of only basic buildings",
+    "automation can be enabled through a visible control",
+    "automation starts a real planned project and retains its reason",
+    "secondary announcement stays in the corner without a screen backdrop",
+    "an important resource warning preempts the report and appears at screen center",
+    "important warning focuses its acknowledgement button",
+    "keyboard focus stays inside the important announcement",
+    "important announcements pause simulated time while preserving play preference",
+    "pending important warning and shortage suppression survive reload",
+    "warning opens the relevant warehouse and restores the queued corner report",
+    "the same shortage does not repeatedly reopen the warning",
+    "time resumes after acknowledgement when play is selected",
+    "mobile important warning and controls fit the viewport",
+    "Escape acknowledges an important announcement and removes its backdrop",
+    "no browser runtime exceptions"
+  ],
+  "errors": []
+}

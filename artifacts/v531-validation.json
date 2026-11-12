@@ -1,0 +1,166 @@
+{
+  "version": "5.3.1",
+  "date": "2026-11-12",
+  "result": "passed",
+  "engine": {
+    "passed": 174,
+    "execution": "164 existing engine checks in one run; 10 storage checks run separately",
+    "suites": [
+      {
+        "suite": "politics territory and war-objective",
+        "passed": 20
+      },
+      {
+        "suite": "policy initiation cost",
+        "passed": 8
+      },
+      {
+        "suite": "terrain minerals and macroeconomic",
+        "passed": 16
+      },
+      {
+        "suite": "society integration",
+        "passed": 12
+      },
+      {
+        "suite": "governance and inheritance",
+        "passed": 13
+      },
+      {
+        "suite": "third-draft engine",
+        "passed": 10
+      },
+      {
+        "suite": "city, currency and exploration engine",
+        "passed": 12
+      },
+      {
+        "suite": "systems engine",
+        "passed": 21
+      },
+      {
+        "suite": "warfare and era",
+        "passed": 11
+      },
+      {
+        "suite": "expansion, settlement and naming",
+        "passed": 8
+      },
+      {
+        "suite": "progression, industrialization and resistance",
+        "passed": 15
+      },
+      {
+        "suite": "shared foreign rules and adaptive scheduling",
+        "passed": 18
+      },
+      {
+        "suite": "safe save storage",
+        "passed": 10
+      }
+    ]
+  },
+  "browser": {
+    "passed": 105,
+    "suites": [
+      {
+        "suite": "file real-save recovery",
+        "passed": 22,
+        "errors": [],
+        "artifact": "artifacts/v531-file-recovery.json",
+        "timings": [
+          {
+            "action": "list_three_real_legacy_saves",
+            "milliseconds": 2377
+          },
+          {
+            "action": "load_real_legacy_0",
+            "milliseconds": 720
+          },
+          {
+            "action": "load_real_legacy_1",
+            "milliseconds": 736
+          },
+          {
+            "action": "load_real_legacy_2",
+            "milliseconds": 799
+          }
+        ]
+      },
+      {
+        "suite": "http real-save recovery",
+        "passed": 21,
+        "errors": [],
+        "artifact": "artifacts/v531-http-recovery.json",
+        "timings": [
+          {
+            "action": "list_three_real_legacy_saves",
+            "milliseconds": 2879
+          },
+          {
+            "action": "load_real_legacy_0",
+            "milliseconds": 1183
+          },
+          {
+            "action": "load_real_legacy_1",
+            "milliseconds": 1054
+          },
+          {
+            "action": "load_real_legacy_2",
+            "milliseconds": 1232
+          }
+        ]
+      },
+      {
+        "suite": "smoke",
+        "passed": 26,
+        "errors": []
+      },
+      {
+        "suite": "city-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "policy-cost-smoke",
+        "passed": 14,
+        "errors": []
+      }
+    ]
+  },
+  "syntaxChecks": 7,
+  "gitDiffCheck": "passed",
+  "recovery": {
+    "source": "Read-only copy of Chrome Default Local Storage; file:// origin, civil.saves.v2 key",
+    "liveBrowserDatabaseModified": false,
+    "backup": "recovery/存档原始备份_2026-11-12.json",
+    "sha256": "e4915ae0ddf33974ad73d73f39329985b865149c58004d8e7b5b8bfb9888e7cf",
+    "slots": [
+      {
+        "name": "avvt",
+        "year": 250.76897222225642,
+        "population": 34752.19283546249,
+        "buildings": 325
+      },
+      {
+        "name": "avttland",
+        "year": 247.4735055555558,
+        "population": 118808.9243513524,
+        "buildings": 353
+      },
+      {
+        "name": "溪岸",
+        "year": 524.052463888911,
+        "population": 519.2847362246875,
+        "buildings": 25
+      }
+    ]
+  },
+  "scope": [
+    "All three recovered saves open with original year, population and player building count, advance simulation, save, and reload in both file and HTTP modes.",
+    "Recovery tests also cover malformed archives, individual invalid records, unsupported versions, migration errors, import merge and mobile controls.",
+    "Tests use an isolated browser and restore its prior civil.* storage. The live user browser storage was not rewritten.",
+    "The recovered JSON is a fixed snapshot. Close the old stalled tab and reopen the same index.html; use the recovery button if necessary.",
+    "This fix does not claim a rerun of all 262 prior browser checks or long-term economic balance validation."
+  ]
+}

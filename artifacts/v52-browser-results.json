@@ -1,0 +1,22 @@
+{
+  "passed": 16,
+  "checks": [
+    "diplomacy opens an on-demand country production and housing panel",
+    "foreign map buildings and production facilities use the same actual assets",
+    "displayed production and consumption come from real foreign settlement accounting",
+    "food exhaustion visibly lowers the actual country population",
+    "the foreign economy panel shows actual negative growth",
+    "foreign population stops at each city housing limit",
+    "automatic foreign construction spends stock and begins an unfinished real project",
+    "foreign construction progress is accessible from diplomacy",
+    "mobile foreign economy remains scrollable without horizontal overflow",
+    "deferred updates preserve simulation time while leaving country state until its deadline",
+    "the one-second deadline batches the full accumulated development",
+    "sustained device pressure lengthens the interval within the five-second ceiling",
+    "sustained healthy performance restores a shorter interval",
+    "the actual animation loop advances player time and batches foreign development",
+    "save reload preserves queued game time and all country assets stocks and progress",
+    "no browser runtime exceptions"
+  ],
+  "errors": []
+}

@@ -1,0 +1,133 @@
+{
+  "version": "5.2",
+  "date": "2026-11-12",
+  "engine": {
+    "passed": 156,
+    "suites": [
+      {
+        "passed": 10,
+        "suite": "third-draft engine checks passed."
+      },
+      {
+        "passed": 15,
+        "suite": "progression, industrialization and resistance checks passed."
+      },
+      {
+        "passed": 12,
+        "suite": "city, currency and exploration engine checks passed."
+      },
+      {
+        "passed": 12,
+        "suite": "society integration checks passed."
+      },
+      {
+        "passed": 8,
+        "suite": "expansion, settlement and naming checks passed."
+      },
+      {
+        "passed": 11,
+        "suite": "warfare and era checks passed."
+      },
+      {
+        "passed": 13,
+        "suite": "governance and inheritance checks passed."
+      },
+      {
+        "passed": 21,
+        "suite": "systems engine checks passed."
+      },
+      {
+        "passed": 16,
+        "suite": "terrain minerals and macroeconomic checks passed."
+      },
+      {
+        "passed": 18,
+        "suite": "shared foreign rules and adaptive scheduling checks passed."
+      },
+      {
+        "passed": 20,
+        "suite": "politics territory and war-objective checks passed."
+      }
+    ]
+  },
+  "browser": {
+    "passed": 262,
+    "suites": [
+      {
+        "suite": "smoke",
+        "passed": 26,
+        "errors": []
+      },
+      {
+        "suite": "city-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "progression-smoke",
+        "passed": 20,
+        "errors": []
+      },
+      {
+        "suite": "v4-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "expansion-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "systems-smoke",
+        "passed": 21,
+        "errors": []
+      },
+      {
+        "suite": "map-cache-smoke",
+        "passed": 36,
+        "errors": []
+      },
+      {
+        "suite": "governance-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "land-economy-smoke",
+        "passed": 28,
+        "errors": []
+      },
+      {
+        "suite": "politics-territory-smoke",
+        "passed": 27,
+        "errors": []
+      },
+      {
+        "suite": "nations-smoke",
+        "passed": 16,
+        "errors": []
+      }
+    ],
+    "runtimeErrors": []
+  },
+  "features": [
+    "foreign cities use actual assets and local completed housing caps of 105 percent",
+    "food consumption, starvation population loss and workforce-constrained production",
+    "real processing inputs, finite shared minerals and forests, warehouse limits",
+    "paid construction with knowledge population currency and facility prerequisites",
+    "foreign army supply costs, attrition and influence on automatic battle probability",
+    "adaptive one-to-five-second development scheduler preserving pending game time",
+    "on-demand foreign population production stocks and construction panel"
+  ],
+  "saveCompatibility": "existing stocks, population and former player asset identities retained; representative assets initialized once for legacy aggregate foreign cities; queued time and country progress saved; tests restore browser saves",
+  "limitations": [
+    "foreign policy and economic behavior remain an aggregate approximation",
+    "trade and diplomacy retain existing game-time schedules; country development is batched separately",
+    "controlled scenarios do not establish full long-run geopolitical or economic balance"
+  ],
+  "screenshots": [
+    "artifacts/v52-01-foreign-economy.png",
+    "artifacts/v52-02-mobile-foreign.png"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "slides": 21,
+  "aspect_ratio": "16:9",
+  "editable_text": true,
+  "text_overflow": false,
+  "out_of_bounds": [],
+  "embedded_images": 5,
+  "pptx_zip_valid": true,
+  "pdf_pages": 21,
+  "evidence": "PPTX package and object checks plus visual inspection of generated layout previews; not a PowerPoint application render."
+}

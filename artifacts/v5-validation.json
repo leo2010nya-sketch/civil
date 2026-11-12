@@ -1,0 +1,119 @@
+{
+  "version": "5.0",
+  "date": "2026-11-11",
+  "engine": {
+    "passed": 118,
+    "suites": [
+      {
+        "passed": 8,
+        "suite": "expansion, settlement and naming checks passed."
+      },
+      {
+        "passed": 11,
+        "suite": "warfare and era checks passed."
+      },
+      {
+        "passed": 12,
+        "suite": "society integration checks passed."
+      },
+      {
+        "passed": 12,
+        "suite": "city, currency and exploration engine checks passed."
+      },
+      {
+        "passed": 16,
+        "suite": "terrain minerals and macroeconomic checks passed."
+      },
+      {
+        "passed": 21,
+        "suite": "systems engine checks passed."
+      },
+      {
+        "passed": 10,
+        "suite": "third-draft engine checks passed."
+      },
+      {
+        "passed": 15,
+        "suite": "progression, industrialization and resistance checks passed."
+      },
+      {
+        "passed": 13,
+        "suite": "governance and inheritance checks passed."
+      }
+    ],
+    "latestTerrainEconomyRecheck": 16
+  },
+  "browser": {
+    "passed": 219,
+    "suites": [
+      {
+        "suite": "smoke",
+        "passed": 26,
+        "errors": []
+      },
+      {
+        "suite": "city-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "progression-smoke",
+        "passed": 20,
+        "errors": []
+      },
+      {
+        "suite": "v4-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "expansion-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "systems-smoke",
+        "passed": 21,
+        "errors": []
+      },
+      {
+        "suite": "map-cache-smoke",
+        "passed": 36,
+        "errors": []
+      },
+      {
+        "suite": "governance-smoke",
+        "passed": 22,
+        "errors": []
+      },
+      {
+        "suite": "land-economy-smoke",
+        "passed": 28,
+        "errors": []
+      }
+    ],
+    "runtimeErrors": []
+  },
+  "features": [
+    "unlocked building search with Chinese composition support",
+    "aggregate macroeconomics, actual budget/debt/price effects and four endogenous crises",
+    "versioned seeded continents islands climates regional architecture and terrain productivity/cost",
+    "six finite mineral deposits, surveys, mining, copper processing and gold trade"
+  ],
+  "saveCompatibility": "legacy geography retained; finite deposits supplied to existing old mines; all tests preserve isolated browser saves",
+  "limitations": [
+    "aggregate demand/production indices use converted budget scale, not complete monetary national accounts",
+    "long-run game balance remains iterative",
+    "no dedicated naval transport, fleet or geology-depth simulation"
+  ],
+  "screenshots": [
+    "artifacts/v5-01-search.png",
+    "artifacts/v5-02-crisis.png",
+    "artifacts/v5-03-economy.png",
+    "artifacts/v5-04-minerals.png",
+    "artifacts/v5-05-mobile-economy.png",
+    "artifacts/v5-06-mobile-search.png",
+    "artifacts/v5-07-geography.png",
+    "artifacts/v5-08-regional-buildings.png"
+  ]
+}

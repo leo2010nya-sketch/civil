@@ -1,0 +1,47 @@
+{
+  "protocol": "file",
+  "passed": 22,
+  "checks": [
+    "direct-file startup lists all three recovered worlds without eager migration",
+    "opening the startup page leaves exact original save bytes untouched",
+    "large legacy neighbor conversion has a bounded runtime and conserves population",
+    "recovered legacy world 1 opens with its original year population and buildings",
+    "recovered world 1 can open inventory and persist without losing its sibling worlds",
+    "recovered world 1 can resume simulation with finite resources and population",
+    "recovered legacy world 2 opens with its original year population and buildings",
+    "recovered world 2 can open inventory and persist without losing its sibling worlds",
+    "recovered world 2 can resume simulation with finite resources and population",
+    "recovered legacy world 3 opens with its original year population and buildings",
+    "recovered world 3 can open inventory and persist without losing its sibling worlds",
+    "recovered world 3 can resume simulation with finite resources and population",
+    "all three real worlds remain present after repeated migration and reload",
+    "unsupported versions show a recovery dialog without modifying the archive",
+    "a failed save can return to recovery with all healthy worlds accessible",
+    "migration exceptions display an actionable dialog and preserve original bytes",
+    "one malformed slot does not hide the three intact worlds",
+    "a new game preserves malformed records and every prior save rather than replacing the archive",
+    "malformed primary JSON offers recovery controls and retains original bytes",
+    "the direct-file recovery button restores the three verified backup worlds",
+    "mobile archive and recovery actions fit the viewport",
+    "no browser runtime exceptions"
+  ],
+  "timings": [
+    {
+      "action": "list_three_real_legacy_saves",
+      "milliseconds": 2377
+    },
+    {
+      "action": "load_real_legacy_0",
+      "milliseconds": 720
+    },
+    {
+      "action": "load_real_legacy_1",
+      "milliseconds": 736
+    },
+    {
+      "action": "load_real_legacy_2",
+      "milliseconds": 799
+    }
+  ],
+  "errors": []
+}

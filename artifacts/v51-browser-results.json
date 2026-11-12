@@ -1,0 +1,33 @@
+{
+  "passed": 27,
+  "checks": [
+    "reports open local social pressures without a permanent HUD",
+    "social panel shows real local productivity compliance and capital status",
+    "local relief consumes grain and becomes a timed nonrepeatable action",
+    "autonomy changes actual local compliance and remains unavailable in the capital",
+    "severe lasting dissatisfaction causes a central revolt announcement",
+    "strike and revolt cards show real reduced production and causes",
+    "noble refusal is visible and the rejected recruitment order is disabled",
+    "unrest noble refusal and relief timers persist through save reload",
+    "a breakaway city actually leaves the player and becomes a diplomatic country",
+    "new independent country appears in diplomacy and uses its former actual buildings",
+    "declaration opens a deliberate choice of security commerce or territorial purpose",
+    "confirmation records the specific city goal and keeps automatic combat",
+    "war panel shows both objectives and a conditional objective peace offer",
+    "territorial objectives are marked by the real live map renderer",
+    "territorial peace actually transfers the chosen city and ends this war",
+    "acquired city has real local housing population and integration state",
+    "passive declaration marks enemy purpose and offers an immediate response action",
+    "defenders can explicitly choose their own response objective",
+    "annexation preview explains unmet strengths and disables impossible negotiation",
+    "economic military and diplomatic advantages enable a paid negotiation",
+    "annexation begins a timed process rather than instantly replacing the country",
+    "pending annexation persists with its paid cost and deadline",
+    "completed peaceful negotiation removes the absorbed nation and transfers cities",
+    "automatic foreign expansion is shown in diplomacy and produces real map cities",
+    "mobile social actions remain inside the viewport and scrollable panel",
+    "mobile annexation dialog fits and keeps its main action visible",
+    "no browser runtime exceptions"
+  ],
+  "errors": []
+}
