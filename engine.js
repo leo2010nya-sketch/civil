@@ -80,7 +80,8 @@
     const assets=owner.buildings||(owner.cities||[]).flatMap(c=>c.assets||[]),knowledge=Math.max(0,owner.knowledge??owner.technology??0),types=new Set(assets.filter(b=>b.status==='complete').map(b=>b.type));
     const crafts=Object.entries(craftProducts).filter(([id])=>types.has(id)).map(([id,products])=>({id,products}));
     const coefficient=1+clamp(Math.log1p(knowledge)/60+crafts.length*.018,0,.4);
-    return {coefficient,production:coefficient,combat:1+(coefficient-1)*.6,gdp:1+(coefficient-1)*.8,crafts};
+    const toolCoverage=clamp((owner.resources?.tools||0)/Math.max(10,(owner.population||0)*.1),0,1);
+    return {coefficient,toolCoverage,production:coefficient*(1+toolCoverage*.15),combat:1+(coefficient-1)*.6+toolCoverage*.08,gdp:1+(coefficient-1)*.8+toolCoverage*.06,crafts};
   }
   function developmentFrontier(state) {
     const next=(id,types)=>{const target=types.find(type=>!count(state,type));if(!target)return {id,complete:true};const d=getDefinition(target),requirements=[];
@@ -204,8 +205,11 @@
     {id:'postoffice',name:'邮驿局',icon:'postoffice',category:'civic',desc:'组织跨城文书与邮件，缩短政策传达的时间。',cost:{wood:140,stone:100,food:30},years:6,requiredCityPopulation:600,requiredKnowledge:70,requiredBuildings:['council','road'],admin:8,knowledgeRate:.8,footprint:27,small:false}
   );
   buildingDefinitions.push(...(root.CivilLogistics?.buildings||[]));
+  buildingDefinitions.push({id:'adobe',name:'夯土民居',icon:'house',category:'housing',desc:'用黏土与少量木材建成的早期住宅，提供十二人的住房。',cost:{clay:24,wood:12,stone:2},years:2,requiredBuildings:['claypit'],housing:12,footprint:22,small:true});
+  const clayConstruction={granary:16,well:10,townhouse:35,brickhouse:90,publicschool:55,sewer:70};
+  for(const d of buildingDefinitions)if(clayConstruction[d.id])d.cost={...d.cost,clay:clayConstruction[d.id]};
   const buildingRequirements={
-    council:{requiredBuildings:['granary']},quarry:{requiredBuildings:['workshop'],requiredKnowledge:1},
+    council:{requiredBuildings:['granary']},quarry:{requiredPopulation:0,requiredKnowledge:0},
     bridge:{requiredBuildings:['workshop'],requiredKnowledge:5},market:{requiredBuildings:['council'],requiredKnowledge:5},
     school:{requiredBuildings:['workshop'],requiredKnowledge:8},canal:{requiredBuildings:['quarry','granary'],requiredKnowledge:15},
     forge:{requiredBuildings:['workshop','quarry']},library:{requiredBuildings:['school','council']},
@@ -1047,7 +1051,7 @@
     const distress=root.CivilEconomy.distress(state);
     const utilization = (state.rebellionUntil>state.elapsed?.65:1)*(1-distress*.3)*(hasCurrency(state)?(state.economy?.activity??1):1)*clamp((working - buildingLabor) / Math.max(facilityLabor, civilianLabor), 0, 1);
     const labor=clamp(state.population/36,0,1);
-    const toolFactor=technologySummary(state).production*(1+clamp((state.resources.tools||0)/Math.max(10,state.population*.1),0,1)*.05+(isIndustrialized(state)?clamp((state.resources.coal||0)/Math.max(10,count(state,'factory')*20+count(state,'steamplant')*40),0,1)*.05:0));
+    const toolFactor=technologySummary(state).production*(1+(isIndustrialized(state)?clamp((state.resources.coal||0)/Math.max(10,count(state,'factory')*20+count(state,'steamplant')*40),0,1)*.05:0));
     const workFactor=root.CivilPolitics?.average(state,root.CivilPolitics.labor)??1;
     const foodProduction = (15*labor*workFactor + effect.food + state.population * 0.065*workFactor) * (1 + effect.foodBonus) * utilization * toolFactor;
     const woodProduction = (4.4*labor*workFactor + effect.wood) * (1 + effect.woodBonus) * utilization * toolFactor;
@@ -1546,7 +1550,7 @@
     resources:root.CivilLogistics?.resources||[],
     storageSummary:state=>root.CivilLogistics?.summary(state),
     configureTrade:(state,id,plan)=>root.CivilLogistics?.configureTrade(state,id,plan),
-    policyFeedbackSummary,
+    policyFeedbackSummary,defenseAt,
     buildings: buildingDefinitions,
     policies: policyDefinitions,
     reforms: reformDefinitions,

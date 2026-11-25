@@ -35,7 +35,10 @@
     if(war.enemySoldiers<1)return 1;
     const tech=1+Math.log1p(Math.max(0,s.knowledge))/5+(s.industrialized?.55:0);
     const enemyTech=1+Math.log1p(Math.max(0,n.technology??110))/5;
-    const defense=war.aggressor?0:(hooks.defenseAt?.(s,n.x,n.y)||0)/180;
+    const home=war.enemyGoal?.cityId?s.settlements.find(c=>c.id===war.enemyGoal.cityId):s.settlements.reduce((a,c)=>Math.hypot(c.x-n.x,c.y-n.y)<Math.hypot(a.x-n.x,a.y-n.y)?c:a,s.settlements[0]);
+    const foreignCity=(n.cities||[]).find(c=>c.id===war.goal?.cityId)||(n.cities||[])[0];
+    const enemyDefense=(foreignCity?.assets||[]).filter(b=>b.status==='complete').reduce((v,b)=>v+(root.CivilEngine.buildings.find(d=>d.id===b.type)?.defense||0)*(b.size||1),0);
+    const defense=war.aggressor?-Math.min(70,enemyDefense)/300:(hooks.defenseAt?.(s,home?.x??n.x,home?.y??n.y)||0)/240;
     const force=Math.sqrt((w.soldiers/Math.max(1,w.wars.length)+15)/(war.enemySoldiers+15));
     return clamp(.5+Math.log(force*tech*(root.CivilEngine?.technologySummary(s).combat||1)/(enemyTech*(root.CivilEngine?.technologySummary(n).combat||1)))*.24+(support(s)-55)/260+(w.supply-.8)*.25-((war.enemySupply??.8)-.8)*.25+defense+(w.productionLaw==='militia'?-.06:0)+(n.military?.productionLaw==='militia'?.06:0)+alliedSupport(s,war),.07,.93);
   }
@@ -117,7 +120,8 @@
     if(offer==='objective')objective(s,n,war.goal,'player');
     return {ok:true,message:'停战约定已生效'};
   }
-  function civilianLoss(owner,loss){
+  function civilianLoss(owner,loss,warDamage=false){
+    const assets=owner.buildings||(owner.cities||[]).flatMap(c=>c.assets||[]),defense=assets.filter(b=>b.status==='complete'&&['wall','palisade'].includes(b.type)).reduce((v,b)=>v+(b.type==='wall'?25:8)*(b.size||1),0);if(warDamage)loss*=1-Math.min(.45,defense/160);
     const population=owner.population,cities=owner.settlements||owner.cities||[],soldiers=owner.warfare?.soldiers||owner.military?.soldiers||0,actual=Math.min(Math.max(0,population-soldiers),Math.max(0,loss));
     owner.population=Math.max(0,population-actual);for(const c of cities)c.population*=owner.population/Math.max(1,population);return actual;
   }
@@ -145,7 +149,7 @@
       n.warExhaustion=clamp(n.warExhaustion+.9*dt,0,100);
       if(s.elapsed<war.nextBattle)continue;
       const chance=probability(s,war),won=hooks.random(s)<chance;
-      const engaged=w.soldiers;const civilian=won?civilianLoss(n,Math.min(n.population-war.enemySoldiers,n.population*.003)):civilianLoss(s,s.population*.003);war.civilianLosses=(war.civilianLosses||0)+(won?0:civilian);war.enemyCivilianLosses=(war.enemyCivilianLosses||0)+(won?civilian:0);
+      const engaged=w.soldiers;const civilian=won?civilianLoss(n,Math.min(n.population-war.enemySoldiers,n.population*.003),true):civilianLoss(s,s.population*.003,true);war.civilianLosses=(war.civilianLosses||0)+(won?0:civilian);war.enemyCivilianLosses=(war.enemyCivilianLosses||0)+(won?civilian:0);
       if(!war.aggressor)for(const ally of s.neighbors.filter(a=>a.id!==n.id&&a.militaryAlliance?.until>s.elapsed&&!isEnemy(s,a)&&a.resources?.food>a.population*.5)){const aid=Math.min(ally.resources.food*.01,ally.population*.01);ally.resources.food-=aid;war.alliedFood=(war.alliedFood||0)+aid;}
       const losses=casualties(s,w.soldiers*(won?.025:.065)*(1+hooks.random(s)*.5));
       const enemyLosses=engaged<1?0:Math.min(war.enemySoldiers,engaged*.9,war.enemySoldiers*(won?.08:.03)*(1+hooks.random(s)*.5));

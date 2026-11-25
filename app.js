@@ -27,6 +27,7 @@
   let state = E.create(48271, '溪岸'), inGame = false, playing = false, speed = 1;
   let panel = null, selected = null, selectedProject = null, projectSize = 1, placement = null;
   let buildSearch='';
+  let settlementTab='overview', policyWorkspaceTab='design';
   let buildAnchor = null, draft = null, reformSelections = {};
   let majorEventVisible=false, eventPreviousFocus=null;
   let activePopup = null, lastUI = 0, lastFrame = 0, lastSave = 0, lastPanelRefresh = 0, dirty = false;
@@ -39,10 +40,11 @@
   const world = new window.CivilWorld($('worldMap'), {
     onSelect(selection) {
       if (!inGame) return;
+      if(selection.kind==='building'&&state.startMode==='governance'&&state.buildings.find(b=>b.id===selection.buildingId)?.civicHall){CivilResidence.show(true);closePanel();return;}
       if(selection.kind==='region')buildAnchor={x:selection.x,y:selection.y};
       if(['hostile','nation'].includes(selection.kind)){selected=selection;panel='hostile';renderPanel();return;}
       if(selection.kind==='expedition'){selected=selection;panel='exploration';renderPanel();return;}
-      if(selection.kind==='region'){selectedProject=null;}
+      if(selection.kind==='region'){selectedProject=null;if(state.startMode!=='governance'&&selection.explored&&!selection.water){selected=selection;panel='build';renderPanel();return;}}
       selected = selection; panel = 'selection'; renderPanel();
     },
     onBuild(point) {
@@ -96,6 +98,7 @@
     buildSearch='';buildAnchor=null;draft=null;reformSelections={};
     panel = null; selected = null; activePopup = null; lastReadHistory = state.history[0]?.id;
     guideDismissed = settings.guideDismissed || state.elapsed > 10 || state.startMode==='governance';
+    CivilResidence.ensureHall(state);document.body.classList.toggle('governance-mode',state.startMode==='governance');
     world.setState(state);
     document.querySelectorAll('[data-panel]').forEach(b=>{b.classList.toggle('hidden',state.startMode==='governance'&&['build','automation'].includes(b.dataset.panel));});
     $('cabinetButton').classList.toggle('hidden',state.startMode!=='governance');
@@ -108,7 +111,7 @@
     $('onboarding').classList.toggle('hidden', guideDismissed);
     const homeTerrain=CivilTerrain.sample(state.settlements[0].x,state.settlements[0].y,state.seed,state.geographyVersion||1);
     $('mapSubtitle').textContent = `${state.name} · ${homeTerrain.biome}`;
-    updateHUD(); showNextEvent();
+    CivilResidence.show(state.startMode==='governance');updateHUD(); showNextEvent();
     if (!persist(true)) feedback('自动保存暂不可用', '浏览器未允许保存这段旅程。当前仍可继续游玩，请保留页面，并在浏览器设置中允许本站存储。');
   }
   function continueSlot(id) {
@@ -167,7 +170,7 @@
       if (!persist()) return;
       closeDialog(); inGame = false; playing = false; majorEventVisible=false; closePanel(); cancelPlacement();
       ['hud', 'mapContext', 'mapControls', 'timeControls', 'onboarding', 'eventPopup', 'importantEventBackdrop'].forEach(id => $(id).classList.add('hidden'));
-      renderStart(); $('startScreen').classList.remove('hidden');
+      renderStart(); CivilResidence.show(false);$('officeButton').classList.add('hidden');document.body.classList.remove('governance-mode');$('startScreen').classList.remove('hidden');
     };
   }
   function showDialog(html) { $('importantEventBackdrop').classList.add('hidden');$('eventPopup').classList.add('hidden');activePopup=null;majorEventVisible=false; previousFocus = document.activeElement; $('dialog').innerHTML = html; $('dialogBackdrop').classList.remove('hidden'); $('dialog').querySelectorAll('[data-close=dialog]').forEach(b => b.onclick = closeDialog); setTimeout(() => $('dialog').querySelector('input,button')?.focus(), 0); }
@@ -199,9 +202,13 @@
     const el = $('detailPanel');
     unlockSignature = [...E.buildings, ...E.policies].map(d => E.available(state, d).ok ? '1' : '0').join('');
     el.classList.remove('hidden');
+    el.classList.toggle('policy-workbench',panel==='policy');
+    el.classList.toggle('settlement-panel',state.startMode==='governance'&&panel==='selection'&&selected?.kind==='region'&&world.isExplored(selected.x,selected.y));
     $('onboarding').classList.add('hidden');
     document.querySelectorAll('[data-panel]').forEach(b => b.classList.toggle('active', b.dataset.panel === panel || b.dataset.panel==='reform'&&['budget','culture','nobles','unrest'].includes(panel) || b.dataset.panel==='hostile'&&['war','nationEconomy'].includes(panel)));
-    if(panel==='cabinet')renderCabinet(el);
+    if(panel==='journal')renderJournal(el);
+    else if(panel==='officeReport')renderOfficeReport(el);
+    else if(panel==='cabinet')renderCabinet(el);
     else if (panel === 'build') renderBuild(el);
     else if (panel === 'policy') renderPolicies(el);
     else if (panel === 'reform') renderReforms(el);
@@ -220,10 +227,19 @@
     else if (panel === 'hostile') renderHostiles(el);
     else if (panel === 'nationEconomy') renderNationEconomy(el);
     else if (panel === 'exploration') renderExploration(el);
-    else if (panel === 'selection') renderSelection(el);
+    else if (panel === 'selection') {renderSelection(el);if(state.startMode==='governance'&&selected?.kind==='region'&&world.isExplored(selected.x,selected.y))renderSettlementWorkspace(el);}
     else renderResource(el, panel);
     if(state.startMode==='governance'){el.querySelectorAll('#regionBuild,#regionSettle,#regionExplore,#demolishBuilding,#buildingDemolish,[data-foreign],[data-annex],[data-edit-trade],[data-assimilate],[data-declare-war],[data-war-view],[data-hostile-action],[data-political-action=exchange]').forEach(b=>b.remove());}
     el.querySelectorAll('[data-close=panel]').forEach(b => b.onclick = closePanel);
+  }
+  function renderJournal(el){
+    const r=CivilResidence.initialize(state);el.innerHTML=panelHeader('书架 · 记录与日记')+CivilResidence.archiveHTML(state);
+    $('saveResidentName').onclick=()=>{r.name=$('residentNameInput').value.trim().slice(0,24)||'执政者';dirty=true;CivilResidence.show(true);toast('姓名已保存');};
+    if($('saveDiary'))$('saveDiary').onclick=()=>{const result=CivilResidence.writeDiary(state,$('diaryText').value);toast(result.message);if(result.ok){dirty=true;renderPanel();persist(true);}};
+  }
+  function renderOfficeReport(el){
+    const r=CivilResidence.initialize(state),q=E.stats(state);el.innerHTML=panelHeader('文书台 · 编写报告')+`<div class="metrics">${metric('人口',number(q.population))}${metric('粮食收支',signed(q.foodRate),'/年')}${metric('信任',number(q.stability),'%')}</div><label class="form-label">报告标题<input id="officeReportTitle" maxlength="100" value="纪元 ${Math.floor(state.year)} 年社会报告"></label><textarea id="officeReportText" maxlength="10000" rows="9" placeholder="记录问题、原因与下一步安排"></textarea><button id="saveOfficeReport" class="primary-button">归档报告</button>${r.reports.map(report=>`<article class="archive-entry"><h3>${escape(report.title)}</h3><p>${escape(report.text)}</p></article>`).join('')}`;
+    $('saveOfficeReport').onclick=()=>{const text=$('officeReportText').value.trim(),title=$('officeReportTitle').value.trim();if(!text||!title)return toast('请填写标题与内容');r.reports.unshift({title,text,year:state.year});r.reports.length=Math.min(100,r.reports.length);dirty=true;persist(true);renderPanel();};
   }
   function renderCabinet(el){
     const G=CivilGovernance,g=G.initialize(state),labels={housing:'住房与公共服务',industry:'产业投资',diplomacy:'对外合作',security:'国防与安全'};
@@ -278,6 +294,43 @@
   }
   function cancelPlacement() { placement = null; world.setMode(null); $('placementBar').classList.add('hidden'); }
   function renderPolicies(el) {
+    const options=E.proposalOptions(state),proposals=state.proposals.filter(p=>p.clauses.every(id=>options.clauses.some(c=>c.id===id)));
+    if(!draft&&proposals.length)draft=JSON.parse(JSON.stringify(proposals[0]));
+    renderPolicyEditor(el);
+    const nodes=[...el.childNodes],heading=panelHeader('政策工作台'),layout=document.createElement('div');layout.className='policy-layout';
+    const sidebar=document.createElement('nav');sidebar.className='policy-sidebar';sidebar.setAttribute('aria-label','议案列表');
+    sidebar.innerHTML=`<button class="new-policy" id="workspaceNew">＋ 新议案</button><span class="list-caption">现有议案 · ${proposals.length}</span>${proposals.map(p=>`<button class="policy-select ${draft?.id===p.id?'active':''}" data-workspace-policy="${escape(p.id)}"><span>${escape(p.name)}</span><small>${p.active?'执行中':'已暂停'} · ${number(p.coverage)}%</small></button>`).join('')||'<p class="empty-note">尚无议案</p>'}`;
+    const editor=document.createElement('div');editor.className='policy-editor';nodes.forEach(n=>editor.append(n));editor.querySelector('.panel-header')?.remove();
+    if(draft){
+      const tabs=document.createElement('nav');tabs.className='editor-tabs';tabs.innerHTML=`<button data-workspace-tab="design" class="${policyWorkspaceTab==='design'?'active':''}">政策内容</button><button data-workspace-tab="effects" class="${policyWorkspaceTab==='effects'?'active':''}" ${!draft.id?'disabled':''}>实施效果</button>`;editor.prepend(tabs);
+      if(draft.id){const saved=state.proposals.find(p=>p.id===draft.id),status=document.createElement('div');status.className='workspace-status';status.innerHTML=`<span>${saved.active?'执行中':'已暂停'} · 覆盖 ${number(saved.coverage)}%</span><button id="workspacePause">${saved.active?'暂停':'恢复'}</button>`;editor.prepend(status);status.querySelector('button').onclick=()=>{const r=E.setProposalActive(state,saved.id,!saved.active);if(!r.ok)toast(r.message);draft.active=saved.active;changed();renderPanel();};
+        if(policyWorkspaceTab==='effects'){editor.querySelector('form')?.classList.add('hidden');const effects=document.createElement('section');effects.className='workspace-effects';effects.innerHTML=`<h3>${escape(saved.name)}</h3><div class="coverage"><i style="width:${saved.coverage}%"></i></div>${policyResults(saved)}`;effects.querySelector('details')?.setAttribute('open','');editor.append(effects);}
+      }
+    }
+    el.innerHTML=heading;layout.append(sidebar,editor);el.append(layout);
+    $('workspaceNew').onclick=()=>{policyWorkspaceTab='design';draft={name:'',clauses:[],regions:['all'],target:'all',executor:'community',condition:'always',duration:0};renderPanel();$('proposalName')?.focus();};
+    el.querySelectorAll('[data-workspace-policy]').forEach(b=>b.onclick=()=>{draft=JSON.parse(JSON.stringify(state.proposals.find(p=>p.id===b.dataset.workspacePolicy)));renderPanel();});
+    el.querySelectorAll('[data-workspace-tab]').forEach(b=>b.onclick=()=>{policyWorkspaceTab=b.dataset.workspaceTab;renderPanel();});
+    if($('cancelDraft'))$('cancelDraft').onclick=()=>{draft=null;policyWorkspaceTab='design';renderPanel();};
+  }
+  function renderSettlementWorkspace(el){
+    const city=nearestRegion(selected.x,selected.y),local=state.buildings.filter(b=>b.settlementId===city.id),housing=E.regionalHousing(state)[city.id]||0,land=world.sample(selected.x,selected.y),stats=E.stats(state);
+    const old=document.createElement('div');old.className='settlement-land-content';[...el.childNodes].forEach(n=>old.append(n));old.querySelector('.panel-header')?.remove();
+    el.innerHTML=panelHeader(escape(city.name))+`<div class="settlement-summary"><span>${escape(land.biome)}</span><span>${date(state.year)}</span></div><nav class="panel-tabs">${[['overview','概况'],['land','土地'],['buildings','设施']].map(([id,name])=>`<button data-settlement-tab="${id}" class="${settlementTab===id?'active':''}">${name}</button>`).join('')}</nav><div id="settlementBody"></div>`;
+    const body=$('settlementBody');
+    if(settlementTab==='land')body.append(old);
+    else if(settlementTab==='buildings'){
+      const types=[...new Set(local.map(b=>b.type))];body.innerHTML=`<div class="facility-list">${types.map(type=>{const buildings=local.filter(b=>b.type===type),d=E.buildings.find(d=>d.id===type);return `<button data-facility="${escape(buildings[0].id)}"><span>${escape(d?.name||type)}<small>${buildings.filter(b=>b.status==='complete').length} 已使用 · ${buildings.filter(b=>b.status==='building').length} 在建</small></span><b>${buildings.length} ›</b></button>`;}).join('')}</div>`;
+      body.querySelectorAll('[data-facility]').forEach(b=>b.onclick=()=>{const building=state.buildings.find(q=>q.id===b.dataset.facility);selected={kind:'building',buildingId:building.id,x:building.x,y:building.y};world.centerOn(building.x,building.y);renderPanel();});
+    }else{
+      const utilization=city.population/Math.max(1,housing),unrest=state.unrest?.regions?.[city.id];body.innerHTML=`<div class="population-lead"><span>常住人口<b>${number(city.population)}<small>人</small></b></span></div><div class="occupancy"><div><span>居住承载</span><b>${number(city.population)} / ${number(housing)}</b></div><div class="coverage"><i style="width:${Math.min(100,utilization*100)}%"></i></div><small>可用空间 ${number(Math.max(0,housing-city.population))} 人</small></div><div class="settlement-metrics">${metric('全国粮食净收支',signed(stats.foodRate),'/年')}${metric('全国公众信任',number(state.stability),'%')}</div>${utilization>.8?`<section class="local-issue"><strong>${utilization>1?'住房承载不足':'住房逐渐住满'}</strong><span>使用率 ${number(utilization*100)}%</span></section>`:''}${unrest?`<div class="row"><span>地区不满</span><b>${number(unrest.discontent)}%</b></div>`:''}<div class="row"><span>设施总数</span><b>${local.length}</b></div><div class="row"><span>施工项目</span><b>${local.filter(b=>b.status==='building').length}</b></div>`;
+    }
+    const footer=document.createElement('footer');footer.className='panel-footer';footer.innerHTML=`<button id="settlementPolicy" class="secondary-button">地区政策</button>${state.startMode!=='governance'&&!land.water?'<button id="settlementBuild" class="primary-button">建设 ＋</button>':''}`;el.append(footer);
+    $('settlementPolicy').onclick=()=>{draft={name:'',clauses:[],regions:[city.id],target:'all',executor:'community',condition:'always',duration:0};policyWorkspaceTab='design';panel='policy';renderPanel();};
+    if($('settlementBuild'))$('settlementBuild').onclick=()=>{buildAnchor={x:selected.x,y:selected.y};panel='build';renderPanel();};
+    el.querySelectorAll('[data-settlement-tab]').forEach(b=>b.onclick=()=>{settlementTab=b.dataset.settlementTab;renderPanel();});
+  }
+  function renderPolicyEditor(el) {
     const options=E.proposalOptions(state);
     const visibleProposals=state.proposals.filter(p=>p.clauses.every(id=>options.clauses.some(d=>d.id===id)));
     if(!draft){
@@ -296,7 +349,7 @@
     el.querySelectorAll('[data-clause]').forEach(b=>b.onclick=()=>{remember();const id=b.dataset.clause;if(draft.clauses.includes(id))draft.clauses=draft.clauses.filter(c=>c!==id);else if(draft.clauses.length<E.MAX_POLICY_CLAUSES)draft.clauses.push(id);else toast(`最多 ${E.MAX_POLICY_CLAUSES} 项条款`);const scroll=el.scrollTop;renderPanel();el.scrollTop=scroll;});
     refreshProposalEstimate();
     $('cancelDraft').onclick=()=>{draft=null;renderPanel();};
-    $('proposalForm').onsubmit=e=>{e.preventDefault();remember();const result=E.draftPolicy(state,draft);if(!result.ok){toast(result.message);return;}draft=null;changed();renderPanel();};
+    $('proposalForm').onsubmit=e=>{e.preventDefault();remember();const result=E.draftPolicy(state,draft);if(!result.ok){toast(result.message);return;}draft=JSON.parse(JSON.stringify(state.proposals.find(p=>p.id===result.proposalId)));changed();renderPanel();};
   }
   function refreshProposalEstimate(){
     if(!draft||!$('proposalEstimate'))return;
@@ -606,13 +659,15 @@
     $('importantEventBackdrop').classList.toggle('hidden',!majorEventVisible);
     if(majorEventVisible&&!wasMajor)eventPreviousFocus=document.activeElement;
     if(!majorEventVisible&&wasMajor){if(eventPreviousFocus?.isConnected)eventPreviousFocus.focus();eventPreviousFocus=null;}
+    const urgent=state.startMode==='governance'&&(E.eventPriority(current)==='major'||current.kind==='failure'||current.kind==='news');
+    if(urgent){const residence=CivilResidence.initialize(state);if(!residence.urgent.some(l=>l.id===current.id))residence.urgent.unshift({id:current.id,title:current.title,body:current.body,time:current.time});residence.urgent.length=Math.min(120,residence.urgent.length);}
     const kinds = { report: '一份简报', news: '河谷消息', success: '建设完成', failure: '不利消息', milestone: '新的足迹' };
     const data = current.data || {};
     const building = data.buildingId && state.buildings.find(b => b.id === data.buildingId);
     const eventView = current.kind !== 'report' ? '' : data.population != null ? `<div class="event-data"><span>${icon('people')}<b>${number(data.population)}</b><small>人口</small></span><span>${icon('food')}<b>${number(Math.floor(data.food))}</b><small>粮食</small></span><span>${icon('report')}<b>${number(data.knowledge, 1)}</b><small>知识</small></span></div>` : data.progress != null ? `<div class="coverage" title="记录时施工进度 ${number(data.progress)}%"><i style="width:${Math.min(100, Math.max(0, data.progress))}%"></i></div>` : '';
-    const e = $('eventPopup'); e.className = `event-popup glass ${majorEventVisible?'important':''} ${current.kind === 'failure' ? 'failure' : ''}`;
+    const e = $('eventPopup'); e.className = `event-popup glass ${majorEventVisible?'important':''} ${current.kind === 'failure' ? 'failure' : ''} ${urgent?'urgent-letter':''}`;
     e.setAttribute('role',majorEventVisible?'alertdialog':'status');e.setAttribute('aria-modal',String(majorEventVisible));e.setAttribute('aria-labelledby','eventTitle');
-    e.innerHTML = `<div class="event-meta"><span>${majorEventVisible?'重要公告':kinds[current.kind] || '新消息'}</span><span>${date(current.time)}</span></div><h3 id="eventTitle">${escape(current.title)}</h3><p>${escape(current.body)}</p>${eventView}<footer><span>${state.events.length > 1 ? `另有 ${state.events.length - 1} 条消息` : String(current.id).startsWith('ui-') ? '操作反馈' : '已收录到沿途记录'}</span>${data.warDeclaration&&state.startMode!=='governance'?`<button id="eventWar">${state.warfare.wars.find(w=>w.nationId===data.nationId)?.goalChosen?'战事目标':'应战目的'}</button>`:''}${data.unrest?`<button id="eventUnrest">社会事务</button>`:''}${data.economicCrisis?`<button id="eventEconomy">经济调控</button>`:''}${data.resourceAlert?`<button id="eventResources">${icon('warehouse')}账册</button>`:''}${building || Number.isFinite(data.x) ? `<button id="locateEvent" title="在地图中查看发生地" aria-label="在地图中查看发生地">${icon('compass')}</button>` : ''}${data.letterId?'<button id="eventLetter">查看来信</button>':''}<button id="ackEvent">知道了 ${icon('check')}</button></footer>`;
+    e.innerHTML = `<div class="event-meta"><span>${urgent?'紧急信件 · 市政秘书处':majorEventVisible?'重要公告':kinds[current.kind] || '新消息'}</span><span>${date(current.time)}</span></div><h3 id="eventTitle">${escape(current.title)}</h3><p>${escape(current.body)}</p>${eventView}<footer><span>${state.events.length > 1 ? `另有 ${state.events.length - 1} 条消息` : String(current.id).startsWith('ui-') ? '操作反馈' : '已收录到沿途记录'}</span>${data.warDeclaration&&state.startMode!=='governance'?`<button id="eventWar">${state.warfare.wars.find(w=>w.nationId===data.nationId)?.goalChosen?'战事目标':'应战目的'}</button>`:''}${data.unrest?`<button id="eventUnrest">社会事务</button>`:''}${data.economicCrisis?`<button id="eventEconomy">经济调控</button>`:''}${data.resourceAlert?`<button id="eventResources">${icon('warehouse')}账册</button>`:''}${building || Number.isFinite(data.x) ? `<button id="locateEvent" title="在地图中查看发生地" aria-label="在地图中查看发生地">${icon('compass')}</button>` : ''}${data.letterId?'<button id="eventLetter">查看来信</button>':''}<button id="ackEvent">知道了 ${icon('check')}</button></footer>`;
     if($('eventLetter'))$('eventLetter').onclick=()=>{$('ackEvent').click();openPanel('cabinet');};
     $('ackEvent').onclick = () => { state.events=state.events.filter(e=>e.id!==current.id);activePopup=null;showNextEvent();dirty=true; };
     if(majorEventVisible)$('ackEvent').focus();
@@ -721,6 +776,8 @@
     if (inGame && dirty && now - lastSave > 30000) persist(true);
     requestAnimationFrame(frame);
   }
+  CivilResidence.mount(()=>state,key=>{panel=key;renderPanel();},()=>{dirty=true;});
+  $('officeButton').onclick=()=>{closePanel();CivilResidence.show(true);};
   renderStart(); requestAnimationFrame(frame);
   window.CivilApp = { get state() { return state; }, get world() { return world; }, get playing() { return playing; }, get speed() { return speed; }, get inGame() { return inGame; }, save: persist, tick(years) { E.tick(state, years); changed(); if (panel) renderPanel(); }, openPanel, closePanel, startNew(seed = 48271, name = '溪岸',mode='village') { startGame(E.create(seed, name,mode)); }, get saves() { return saves.map(s => ({ id: s.id, name: s.state.name,mode:s.state.startMode||'village' })); } };
 })();

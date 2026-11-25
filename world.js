@@ -719,6 +719,7 @@
       if (b.status === 'failed') {c.save();c.translate(b.x,b.y);c.scale(Math.sqrt(b.size||1),Math.sqrt(b.size||1));for(let i=0;i<12;i++){c.fillStyle=i%2?'#817961':'#555c4a';c.fillRect(-17+i%4*9,-9+Math.floor(i/4)*8,7,5);}c.restore();return;}
       const size = Number(b.size) || 1, scale = Math.sqrt(size);
       c.save(); c.translate(b.x, b.y); c.scale(scale, scale);
+      if(b.civicHall){this.drawRoofBlock(c,0,0,38,32,'#c4b694','#806a55');c.fillStyle='#cfb274';c.fillRect(-20,-40,3,27);c.fillStyle='#dfbf72';c.fillRect(-17,-40,17,9);c.fillStyle='#f4dfaa';c.font='bold 10px sans-serif';c.textAlign='center';c.fillText('市政',0,6);c.restore();return;}
       const demolishing=b.status==='demolishing';
       const incomplete = !demolishing&&b.status !== 'complete' && Number(b.progress) < 100;
       if(demolishing)c.globalAlpha=.42;
@@ -735,6 +736,7 @@
       else if (['shrine','temple','plaza','theater','printing','museum'].includes(b.type)) this.drawCulture(c,b.type,time);
       else if (['manor','castle','guildhall','inn','taxoffice','barracks'].includes(b.type)) this.drawMedievalCivic(c,b.type,era);
       else if (['harbor','fair','road','aqueduct','sewer','tram'].includes(b.type)) this.drawInfrastructure(c,b.type,time,era);
+      else if(b.type==='adobe')this.drawRoofBlock(c,0,0,25,21,'#c4ac83','#a98d67');
       else if (b.type === 'hut' && era !== 'village') { if(era === 'industrial') this.drawBrickHouse(c); else this.drawRoofBlock(c,0,0,24,23,'#a59c7f','#906d51'); }
       else if (era !== 'village' && ['council','granary','workshop','school','forge','library','lumber'].includes(b.type)) this.drawEraCivic(c,b.type,time,era);
       else if (b.type === 'farm') this.drawFarm(c, b);

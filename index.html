@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17251e">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%2317261f'/%3E%3Cpath d='M25 6C9 4 4 12 9 21c7 8 17 1 16-15ZM7 27 22 9' fill='none' stroke='%23b9ca98' stroke-width='2'/%3E%3C/svg%3E">
   <title>世脉</title>
-  <link rel="stylesheet" href="styles.css?v=5.10">
+  <link rel="stylesheet" href="styles.css?v=5.12"><link rel="stylesheet" href="residence.css?v=5.12">
 </head>
 <body>
   <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
@@ -68,7 +68,7 @@
       </div>
       <nav class="toolbar glass" aria-label="治理操作">
         <button class="tool-button" data-panel="build" title="建设 B"><svg><use href="#i-build"/></svg><span>建设</span></button>
-        <button id="cabinetButton" class="tool-button hidden" data-panel="cabinet" title="执政与来信"><svg><use href="#i-policy"/></svg><span>执政</span></button><button class="tool-button" data-panel="development" title="发展路径"><svg><use href="#i-leaf"/></svg><span>发展</span></button><button class="tool-button" data-panel="policy" title="政策 P"><svg><use href="#i-policy"/></svg><span>政策</span></button>
+        <button id="officeButton" class="tool-button hidden" title="返回市政大厅"><svg><use href="#i-home"/></svg><span>办公室</span></button><button id="cabinetButton" class="tool-button hidden" data-panel="cabinet" title="执政与来信"><svg><use href="#i-policy"/></svg><span>执政</span></button><button class="tool-button" data-panel="development" title="发展路径"><svg><use href="#i-leaf"/></svg><span>发展</span></button><button class="tool-button" data-panel="policy" title="政策 P"><svg><use href="#i-policy"/></svg><span>政策</span></button>
         <button class="tool-button" data-panel="reform" title="制度"><svg><use href="#i-reform"/></svg><span>制度</span></button>
         <button class="tool-button" data-panel="report" title="报告 R"><svg><use href="#i-report"/></svg><span>报告</span><i id="reportBadge" class="badge hidden"></i></button>
         <button id="exploreButton" class="tool-button" title="探索 E"><svg><use href="#i-compass"/></svg><span>探索</span></button>
@@ -101,12 +101,12 @@
 
   <section id="startScreen" class="start-screen" aria-label="启动界面">
     <div class="start-shade"></div>
-    <div class="start-content"><h1 aria-label="世脉"><span class="title-first">世</span><span class="title-second">脉</span></h1>
-      <div class="start-actions"><button id="continueButton" class="continue-button hidden"><span><small>继续游戏</small><strong id="continueName"></strong><em id="continueMeta"></em></span><svg><use href="#i-arrow"/></svg></button><button id="newGameButton" class="new-game-button"><span>新的世界</span><svg><use href="#i-arrow"/></svg></button><button id="loadGameButton" class="load-button"><svg><use href="#i-save"/></svg><span>读取存档</span><small id="saveCount">0</small></button></div>
+    <div class="start-content"><div class="start-overline"><svg><use href="#i-leaf"/></svg><span>A LIVING CIVILIZATION</span></div><h1>世脉<span>让山河，记住你的选择。</span></h1><p class="start-description">从河湾村落，或从一座城邦。<br>建设家园，与远方建立联系。</p>
+      <div class="start-actions"><button id="continueButton" class="continue-button hidden"><span><small>继续旅程</small><strong id="continueName"></strong><em id="continueMeta"></em></span><svg><use href="#i-arrow"/></svg></button><button id="newGameButton" class="new-game-button"><span>启程 · 新的世界</span><svg><use href="#i-arrow"/></svg></button><button id="loadGameButton" class="load-button"><svg><use href="#i-save"/></svg><span>旅程存档</span><small id="saveCount">0</small></button></div>
     </div>
   </section>
 
   <div id="dialogBackdrop" class="dialog-backdrop hidden"><section id="dialog" class="dialog glass" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"></section></div>
-  <script src="terrain.js?v=5.10"></script><script src="society.js?v=5.10"></script><script src="warfare.js?v=5.10"></script><script src="logistics.js?v=5.10"></script><script src="minerals.js?v=5.10"></script><script src="economy.js?v=5.10"></script><script src="politics.js?v=5.10"></script><script src="territory.js?v=5.10"></script><script src="nations.js?v=5.10"></script><script src="statecraft.js?v=5.10"></script><script src="engine.js?v=5.10"></script><script src="governance-mode.js?v=5.10"></script><script src="world.js?v=5.10"></script><script src="storage.js?v=5.10"></script><script src="app.js?v=5.10"></script>
+  <script src="terrain.js?v=5.12"></script><script src="society.js?v=5.12"></script><script src="warfare.js?v=5.12"></script><script src="logistics.js?v=5.12"></script><script src="minerals.js?v=5.12"></script><script src="economy.js?v=5.12"></script><script src="politics.js?v=5.12"></script><script src="territory.js?v=5.12"></script><script src="nations.js?v=5.12"></script><script src="statecraft.js?v=5.12"></script><script src="engine.js?v=5.12"></script><script src="governance-mode.js?v=5.12"></script><script src="world.js?v=5.12"></script><script src="storage.js?v=5.12"></script><script src="residence.js?v=5.12"></script><script src="app.js?v=5.12"></script>
 </body>
 </html>

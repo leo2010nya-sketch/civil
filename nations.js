@@ -92,7 +92,7 @@
     const targetRatio=Math.min(.1,n.military.ratio??(war?.06:.01)),recruits=Math.max(0,n.population*targetRatio-(war?.enemySoldiers??n.military.soldiers))*.3*dt*(n.development.last.supply??1);if(war)war.enemySoldiers=Math.min(n.population,war.enemySoldiers+recruits);else n.military.soldiers=Math.min(n.population,n.military.soldiers+recruits);
     const buildings=assets(n),finished=buildings.filter(b=>b.status==='complete'),soldiers=Math.min(n.population,war?.enemySoldiers??n.military?.soldiers??n.population*.01);
     const labor=clamp((n.population*.54-soldiers*(n.military?.productionLaw==='militia'?.35:1)-buildings.filter(b=>b.status==='building').length*2)/Math.max(12,n.population*.54,buildings.length*2),0,1);
-    const disorder=clamp((n.stability-15)/40,.35,1),work=labor*disorder*(1-root.CivilEconomy.distress(n)*.3)*(n.rebellionUntil>s.elapsed?.65:1),tool=E().technologySummary(n).production*(1+clamp((n.resources.tools||0)/Math.max(10,n.population*.1),0,1)*.05);
+    const disorder=clamp((n.stability-15)/40,.35,1),work=labor*disorder*(1-root.CivilEconomy.distress(n)*.3)*(n.rebellionUntil>s.elapsed?.65:1),tool=E().technologySummary(n).production;
     const capacities=Object.fromEntries(L().resources.map(r=>[r.id,capacity(n,r.id)])),space=k=>Math.max(0,capacities[k]-n.resources[k]);
     const gross={},used={},add=(k,v)=>{v=Math.max(0,Math.min(v,space(k)));n.resources[k]+=v;gross[k]=(gross[k]||0)+v/dt;return v;};
     const use=(k,v)=>{const paid=Math.min(n.resources[k]||0,Math.max(0,v));n.resources[k]-=paid;used[k]=(used[k]||0)+paid/dt;return paid;};
