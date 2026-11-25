@@ -1,0 +1,14 @@
+{
+  "passed": 8,
+  "checks": [
+    "political actions appear in institutions",
+    "political action applies a real cooldown",
+    "currency implementation percentage is visible",
+    "mobilization controls no longer offer total or over-ten-percent mass mobilization",
+    "foreign affairs offers gradual cultural assimilation",
+    "cultural exchange starts actual long-term progress",
+    "mobile institutions fit the screen",
+    "no browser runtime errors"
+  ],
+  "errors": []
+}

@@ -1,0 +1,80 @@
+{
+  "version": "5.3.2",
+  "date": "2026-11-12",
+  "result": "passed",
+  "engineChecks": 180,
+  "suites": [
+    {
+      "suite": "safe save storage",
+      "passed": 10
+    },
+    {
+      "suite": "shared foreign rules and adaptive scheduling",
+      "passed": 18
+    },
+    {
+      "suite": "terrain minerals and macroeconomic",
+      "passed": 16
+    },
+    {
+      "suite": "policy initiation cost",
+      "passed": 8
+    },
+    {
+      "suite": "systems engine",
+      "passed": 21
+    },
+    {
+      "suite": "governance and inheritance",
+      "passed": 13
+    },
+    {
+      "suite": "third-draft engine",
+      "passed": 10
+    },
+    {
+      "suite": "expansion, settlement and naming",
+      "passed": 8
+    },
+    {
+      "suite": "city, currency and exploration engine",
+      "passed": 12
+    },
+    {
+      "suite": "progression, industrialization and resistance",
+      "passed": 15
+    },
+    {
+      "suite": "politics territory and war-objective",
+      "passed": 20
+    },
+    {
+      "suite": "shared population growth",
+      "passed": 6
+    },
+    {
+      "suite": "society integration",
+      "passed": 12
+    },
+    {
+      "suite": "warfare and era",
+      "passed": 11
+    }
+  ],
+  "populationLimits": {
+    "naturalAnnualRate": 0.008,
+    "totalAnnualRateIncludingMigration": 0.012,
+    "housingCapacityMultiplier": 1.05,
+    "sharedByPlayerAndForeignNations": true
+  },
+  "notes": [
+    "Annualized rates accrue through existing simulation substeps.",
+    "Existing population and explicit territorial population transfers are preserved.",
+    "Food shortages continue to allow negative growth."
+  ],
+  "syntaxChecks": [
+    "engine.js",
+    "nations.js"
+  ],
+  "diffWhitespaceCheck": "passed"
+}

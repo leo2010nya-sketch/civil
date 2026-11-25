@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import vm from 'node:vm';import{readFile}from'node:fs/promises';
 const context=vm.createContext({window:{}});
-for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),context);
+for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','statecraft','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),context);
 const{CivilEngine:E,CivilTerrain:T,CivilLogistics:L}=context.window,plain=v=>JSON.parse(JSON.stringify(v));
 let passed=0;const check=(name,fn)=>{fn();passed++;console.log('✓ '+name);};
 const inherited=E.create(48271,'诸城','city'),city=()=>E.initialize(plain(inherited));
@@ -87,7 +87,7 @@ check('automation plans a diverse local program with dependencies and constructi
 check('automation commissions affordable nonfarm projects near the city that needs them',()=>{
  const s=city(),home=s.settlements[0];s.buildings=s.buildings.filter(b=>b.type!=='well');s.resources.food=100000;
  s.automation.enabled=true;s.automation.tasks.food=false;s.automation.tasks.housing=false;
- const before=s.resources.stone;E.tick(s,1);const b=s.buildings.find(b=>b.automatic);
+ const before=s.resources.stone;s.automation.lastCheck=s.elapsed-E.automaticConstruction.interval;E.tick(s,1);const b=s.buildings.find(b=>b.automatic);
  assert.ok(b);assert.equal(b.type,'well');assert.ok(Math.hypot(b.x-home.x,b.y-home.y)<200);assert.ok(s.resources.stone<before+E.stats(s).stoneProduction);assert.equal(b.planZone,'civic');assert.ok(b.planReason&&s.automation.recent.length===1);
  const plans=E.automationPlan(s);assert.ok(!plans.some(p=>p.type==='well'&&p.settlementId===b.settlementId));
 });

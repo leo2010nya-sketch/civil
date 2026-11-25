@@ -31,8 +31,8 @@ try{
  await check('clicking a foreign city opens its diplomacy',`!document.getElementById('detailPanel').classList.contains('hidden')&&document.querySelector('.nation-card.selected .nation-name').textContent.includes(CivilApp.state.neighbors[0].name)`);
  const relation=await ev('CivilApp.state.neighbors[1].relation');
  await click('[data-foreign="envoy"][data-nation="stone-country"]');
- await check('envoy changes relations through the government action',`CivilApp.state.neighbors[1].relation>${relation}`);
- await ev(`while(CivilApp.state.neighbors[1].relation<45)CivilEngine.foreignAction(CivilApp.state,'stone-country','envoy');CivilApp.closePanel();CivilApp.openPanel('hostile');true`);await click('[data-foreign="pact"][data-nation="stone-country"]');
+ await check('envoy changes relations through the government action',`CivilApp.state.neighbors[1].relation===${relation}&&CivilApp.state.neighbors[1].diplomaticChanges.length>0`);
+ await ev(`CivilApp.tick(3.25);while(CivilApp.state.neighbors[1].relation<45){CivilEngine.foreignAction(CivilApp.state,'stone-country','envoy');CivilApp.tick(3.25);}CivilApp.closePanel();CivilApp.openPanel('hostile');true`);await click('[data-foreign="pact"][data-nation="stone-country"]');
  await check('negotiated pact has a real expiry',`CivilApp.state.neighbors[1].pactUntil>CivilApp.state.elapsed+9`);
  await click('[data-foreign="embargo"][data-nation="green-country"]');await ev('CivilApp.tick(.25);true');
  await check('embargo stops a route and changes geopolitics',`CivilApp.state.neighbors[0].embargo&&!CivilApp.state.neighbors[0].tradeOpen&&CivilApp.state.neighbors[0].tradeLast.imported===0`);

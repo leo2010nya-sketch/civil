@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#17251e">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%2317261f'/%3E%3Cpath d='M25 6C9 4 4 12 9 21c7 8 17 1 16-15ZM7 27 22 9' fill='none' stroke='%23b9ca98' stroke-width='2'/%3E%3C/svg%3E">
-  <title>世脉</title>
-  <link rel="stylesheet" href="styles.css?v=5.3.1">
+  <title>世脉 · 从一缕炊烟开始</title>
+  <link rel="stylesheet" href="styles.css?v=3.2">
 </head>
 <body>
   <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
@@ -41,12 +41,6 @@
     <symbol id="i-health" viewBox="0 0 24 24"><path d="M4 22V7h16v15 M2 22h20 M9 7V2h6v5 M9 12h6 M12 9v6 M9 22v-4h6v4"/></symbol>
     <symbol id="i-industry" viewBox="0 0 24 24"><path d="M3 22V11l6-5v6l6-5v6h6v9H3Z M17 13V2h3l1 11 M7 17h1 M12 17h1 M17 17h1"/></symbol>
     <symbol id="i-rail" viewBox="0 0 24 24"><path d="M6 3h12v14H6V3Z M6 10h12 M9 6h6 M8 14h1 M15 14h1 M8 17 4 22 M16 17l4 5 M6 20h12"/></symbol>
-    <symbol id="i-bank" viewBox="0 0 24 24"><path d="m2 8 10-6 10 6H2Z M4 21h16 M3 18h18 M6 10v7 M10 10v7 M14 10v7 M18 10v7"/></symbol>
-    <symbol id="i-market" viewBox="0 0 24 24"><path d="M3 8h18l-2-5H5L3 8Z M4 8v13h16V8 M8 21v-8h8v8 M3 8c0 5 5 5 5 0 0 5 8 5 8 0 0 5 5 5 5 0"/></symbol>
-    <symbol id="i-post" viewBox="0 0 24 24"><path d="M3 5h18v14H3V5Z m0 1 9 7 9-7 M3 19l6-6 M21 19l-6-6"/></symbol>
-    <symbol id="i-culture" viewBox="0 0 24 24"><path d="M12 2v4 M8 6h8 M5 10l7-4 7 4 M6 11v8 M10 11v8 M14 11v8 M18 11v8 M3 22h18 M4 19h16"/></symbol>
-    <symbol id="i-crown" viewBox="0 0 24 24"><path d="m3 6 5 5 4-8 4 8 5-5-3 13H6L3 6Z M6 22h12"/></symbol>
-    <symbol id="i-war" viewBox="0 0 24 24"><path d="m3 3 5 1 12 15 M21 3l-5 1L4 19 M4 14l6 6 M14 20l6-6 M3 21l3-3 M18 18l3 3"/></symbol>
   </defs></svg>
 
   <main id="game" aria-label="文明世界">
@@ -64,7 +58,6 @@
         <button class="resource" data-stat="wood" title="木材收支"><svg><use href="#i-wood"/></svg><span><b id="woodValue">100</b><small>木材</small></span></button>
         <button class="resource" data-stat="stone" title="石材收支"><svg><use href="#i-stone"/></svg><span><b id="stoneValue">48</b><small>石材</small></span></button>
         <button class="resource hidden" data-stat="treasury" title="国库与预算"><svg><use href="#i-coin"/></svg><span><b id="treasuryValue">0</b><small>国库</small></span></button>
-        <button class="resource warehouse-button" data-panel="warehouse" title="仓库" aria-label="仓库"><svg><use href="#i-warehouse"/></svg></button>
       </div>
       <nav class="toolbar glass" aria-label="治理操作">
         <button class="tool-button" data-panel="build" title="建设 B"><svg><use href="#i-build"/></svg><span>建设</span></button>
@@ -89,10 +82,9 @@
     <div id="timeControls" class="time-controls glass hidden">
       <div class="calendar"><strong id="yearLabel">纪元 0 年</strong><span id="seasonLabel">暂停</span></div>
       <button id="playButton" class="play-button" title="开始 / 暂停 空格" aria-label="开始时间"><svg><use id="playUse" href="#i-play"/></svg></button>
-      <div class="speed-options" aria-label="时间速度"><button data-speed="1" class="active">1×</button><button data-speed="5">5×</button><button data-speed="12">12×</button></div>
+      <div class="speed-options" aria-label="时间速度"><button data-speed="1" class="active">1×</button><button data-speed="12">12×</button><button data-speed="60">60×</button><button data-speed="300">300×</button></div>
     </div>
 
-    <div id="importantEventBackdrop" class="important-event-backdrop hidden" aria-hidden="true"></div>
     <section id="eventPopup" class="event-popup glass hidden" aria-live="polite"></section>
     <div id="onboarding" class="onboarding glass hidden"><span class="guide-mark">01</span><div><strong id="guideTitle">先看看这处河湾</strong><p id="guideText">拖动画面，滚轮靠近屋舍。点击顶部的建设，种下第一片农田。</p></div><button id="dismissGuide" class="icon-button" title="关闭提示" aria-label="关闭提示"><svg><use href="#i-close"/></svg></button></div>
     <div id="placementBar" class="placement-bar glass hidden"><svg><use href="#i-build"/></svg><span id="placementText"></span><button id="cancelPlacement" class="icon-button" title="取消放置" aria-label="取消放置"><svg><use href="#i-close"/></svg></button></div>
@@ -101,12 +93,10 @@
 
   <section id="startScreen" class="start-screen" aria-label="启动界面">
     <div class="start-shade"></div>
-    <div class="start-content"><h1 aria-label="世脉"><span class="title-first">世</span><span class="title-second">脉</span></h1>
-      <div class="start-actions"><button id="continueButton" class="continue-button hidden"><span><small>继续游戏</small><strong id="continueName"></strong><em id="continueMeta"></em></span><svg><use href="#i-arrow"/></svg></button><button id="newGameButton" class="new-game-button"><span>新的世界</span><svg><use href="#i-arrow"/></svg></button><button id="loadGameButton" class="load-button"><svg><use href="#i-save"/></svg><span>读取存档</span><small id="saveCount">0</small></button></div>
-    </div>
-  </section>
+    <div class="start-content"><div class="start-overline"><svg><use href="#i-leaf"/></svg><span>A LIVING CIVILIZATION</span></div><h1>世脉<span>让山河，记住你的选择。</span></h1><p class="start-description">从河湾村落，或从一座城邦。<br>建设家园，与远方建立联系。</p>
+      <div class="start-actions"><button id="continueButton" class="continue-button hidden"><span><small>继续旅程</small><strong id="continueName"></strong><em id="continueMeta"></em></span><svg><use href="#i-arrow"/></svg></button><button id="newGameButton" class="new-game-button"><span>启程 · 新的世界</span><svg><use href="#i-arrow"/></svg></button><button id="loadGameButton" class="load-button"><svg><use href="#i-save"/></svg><span>旅程存档</span><small id="saveCount">0</small></button></div>
 
   <div id="dialogBackdrop" class="dialog-backdrop hidden"><section id="dialog" class="dialog glass" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"></section></div>
-  <script src="terrain.js?v=5.3.1"></script><script src="society.js?v=5.3.1"></script><script src="warfare.js?v=5.3.1"></script><script src="logistics.js?v=5.3.1"></script><script src="minerals.js?v=5.3.1"></script><script src="economy.js?v=5.3.1"></script><script src="politics.js?v=5.3.1"></script><script src="territory.js?v=5.3.1"></script><script src="nations.js?v=5.3.1"></script><script src="engine.js?v=5.3.1"></script><script src="world.js?v=5.3.1"></script><script src="storage.js?v=5.3.1"></script><script src="app.js?v=5.3.1"></script>
+  <script src="terrain.js?v=3.2"></script><script src="engine.js?v=3.2"></script><script src="world.js?v=3.2"></script><script src="app.js?v=3.2"></script>
 </body>
 </html>

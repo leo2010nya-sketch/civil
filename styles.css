@@ -62,3 +62,29 @@
 .choice-row button.primary-button{background:#b7c995;color:#1a2a1e!important;flex:1;font-size:12px;min-height:42px}.choice-row button.primary-button:hover{background:#cfdda9}
 /* Local society and diplomatic aims stay inside requested panels. */
 .government-nav{flex-wrap:wrap}.unrest-card{margin:16px 0;padding:17px;background:#b7c9950b;border:1px solid #b7c99520;border-radius:23px 16px 22px 18px}.unrest-card header{display:flex;align-items:center;justify-content:space-between;gap:12px}.unrest-card header button{display:flex;align-items:center;gap:8px;font:19px 'Songti SC',serif}.unrest-card header svg{width:17px;height:17px}.unrest-card header strong{font:25px Georgia,serif;color:#d4c49a}.unrest-card>p{color:var(--muted);font-size:11px;line-height:1.8}.unrest-card.strike{border-color:#c4aa6950}.unrest-card.revolt{border-color:#bb775975}.unrest-card.revolt .coverage i{background:#bd8263}.social-actions{display:grid;gap:8px;margin-top:14px}.social-actions button{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;background:#c0cfa315;border-radius:14px;font-size:12px}.social-actions button:disabled{opacity:.45}.social-alert{padding:16px;background:#b2785322;border:1px solid #be88634a;border-radius:18px 24px 17px 23px;margin:14px 0}.social-alert strong{font:20px 'Songti SC',serif;color:#e4bd9c}.social-alert p,.territory-note{font-size:11px;line-height:1.8;color:var(--muted)}.social-alert .primary-button{margin-top:12px}.war-goals{display:grid;gap:10px;margin:18px 0}.war-goals button{text-align:left;background:#b7c9950c;border:1px solid #b7c9952a;border-radius:15px 23px 16px 20px;padding:15px}.war-goals button.active{border-color:#c7d4a493;background:#b7c99520}.war-goals strong{display:block;font:18px 'Songti SC',serif;color:var(--paper)}.war-goals span{display:block;font-size:11px;color:var(--muted);line-height:1.8;margin-top:7px}.war-city-label{display:block;font-size:12px;color:var(--muted)}.war-city-label select{display:block;width:100%;margin-top:10px;padding:11px;background:#23382b;color:var(--paper);border:1px solid var(--line);border-radius:12px;font:inherit}.war-objectives{border-top:1px solid var(--line);padding:10px 0}.war-objectives p{font-size:12px;line-height:1.8;margin:5px 0;color:#c8c7a7}.diplomatic-reasons{font-size:12px;color:#dbb28a;padding-left:20px;line-height:2}.treaty-positive{font-size:13px;color:var(--sage)}#beginAnnex,#confirmWarGoal{margin-top:20px}
+
+/* Keep destructive actions legible on a distinct, warm button surface. */
+.primary-button.danger{background:#b98260;color:#17261d;border:1px solid #d0a37b;font-weight:600}
+.primary-button.danger:hover:not(:disabled){background:#cca17a;color:#102016}
+.primary-button.danger:disabled{opacity:.45;cursor:not-allowed}
+
+/* Consistent breathing room between explanations and actions. */
+.detail-panel p,.dialog p{line-height:1.85;margin-block:12px 18px}
+.detail-panel p+button,.dialog p+button,.detail-panel .metrics+button,.dialog .costs+button{margin-top:14px}
+.detail-panel>.primary-button,.detail-panel>button,.dialog>.primary-button{margin-block:10px}
+.detail-panel .choice-row,.dialog .choice-row,.nation-actions,.hostile-actions{gap:12px;margin-block:16px}
+.feedback-card{margin-block:18px;padding:18px}.feedback-card>h3{margin-bottom:16px}
+.craft-products{display:block;margin-top:10px;color:#b7c7a4;font-size:11px;line-height:1.7}
+.development-tree{display:grid;gap:24px;margin:24px 0}.development-node{position:relative;padding:20px;border:1px solid #b6c79d3a;background:#adbd8b09;border-radius:18px 28px 21px 25px}
+.development-node h3{font:22px 'Songti SC',serif;margin:16px 0}.development-requirements{list-style:none;padding:0;display:grid;gap:14px;margin:18px 0}
+.development-requirements li{display:flex;justify-content:space-between;gap:18px;color:#ceb393;font-size:12px;line-height:1.8}.development-requirements li.met{color:#b6c99b}
+.capacity-comparison{margin:20px 0;padding-top:10px}.capacity-comparison>.metrics{margin-block:16px}.capacity-comparison strong{font-size:15px}
+#exitMineralLayer{min-height:44px;padding:10px 18px;pointer-events:auto}
+@media(max-width:700px){.toolbar{gap:0}.tool-button{min-width:38px}.development-node{padding:18px}.detail-panel .choice-row{flex-wrap:wrap}}
+
+/* Military law and mint controls retain space at narrow widths. */
+#mobilizationRatio{width:100%;margin:14px 0 18px;accent-color:#a5b582;}
+#mintAmount{width:90px;min-height:38px;}
+#mintMetal{min-height:38px;}
+
+.start-mode-options{grid-template-columns:repeat(3,minmax(0,1fr))}.direction-control{display:block;margin:20px 0;font-size:13px}.direction-control b{float:right;color:var(--gold)}.direction-control input{display:block;width:100%;margin-top:15px;accent-color:var(--sage)}.government-letter{padding:19px;margin:18px 0;background:#c7bf9510;border:1px solid var(--line);border-radius:12px 20px 15px 18px}.government-letter header{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--gold)}.government-letter p{font-size:12px;color:var(--muted)}.government-letter h3{font-size:16px}@media(max-width:480px){.start-mode-options{grid-template-columns:1fr}.start-mode-options button{padding:12px}}

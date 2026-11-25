@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';import vm from'node:vm';import{readFile}from'node:fs/promises';
-const c=vm.createContext({window:{}});for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),c);
+const c=vm.createContext({window:{}});for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','statecraft','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),c);
 const{CivilEngine:E,CivilTerrain:T,CivilMinerals:M,CivilEconomy:A,CivilLogistics:L}=c.window,plain=x=>JSON.parse(JSON.stringify(x));
 const template=E.create(48271,'经济城','city'),city=()=>E.initialize(plain(template));let passed=0;
 const check=(name,fn)=>{fn();passed++;console.log('✓ '+name);};const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} != ${b}`);
@@ -67,7 +67,7 @@ check('excess credit plus cheap borrowing triggers a crisis and tightening permi
  A.setPolicy(s,'credit',.2);A.setPolicy(s,'interest',.08);A.setPolicy(s,'spending',.25);advance(s,15);assert.equal(s.economy.crisis,null);assert.ok(s.history.some(e=>e.title==='经济逐步复苏'));
 });
 check('demand recession and supply inflation have different triggers and recovery conditions',()=>{
- const s=city();s.resources.treasury=1e6;s.resources.food=s.population*10;A.setPolicy(s,'spending',0);s.economy.confidence=40;advance(s,8);assert.equal(s.economy.crisis?.type,'demand');
+ const s=city();s.resources.treasury=1e6;s.resources.food=s.population*10;A.setPolicy(s,'spending',0);s.economy.confidence=40;advance(s,25);assert.equal(s.economy.crisis?.type,'demand');
  A.setPolicy(s,'spending',.3);advance(s,20);assert.equal(s.economy.crisis,null);
  const supply=city();supply.resources.food=0;supply.resources.treasury=1e6;supply.economy.inflation=.09;advance(supply,.5);assert.equal(supply.economy.crisis?.type,'supply');
 });

@@ -1,0 +1,14 @@
+{
+  "passed": 8,
+  "checks": [
+    "new village has no revealed neighbors but military is available immediately",
+    "levy is enabled and standing army remains locked without barracks",
+    "small village immediately fields a real soldier without currency",
+    "departure does not reveal any settlement",
+    "arrival reveals a small barter partner and usable diplomatic actions",
+    "early trade shows goods quantities without monetary prices or tariffs",
+    "mobile barter controls fit the viewport",
+    "no browser runtime exceptions"
+  ],
+  "errors": []
+}

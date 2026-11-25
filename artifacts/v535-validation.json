@@ -1,0 +1,102 @@
+{
+  "version": "5.3.5",
+  "date": "2026-11-12",
+  "result": "passed",
+  "engine": {
+    "passed": 202,
+    "suites": [
+      {
+        "suite": "safe save storage",
+        "passed": 10
+      },
+      {
+        "suite": "third-draft engine",
+        "passed": 10
+      },
+      {
+        "suite": "society integration",
+        "passed": 12
+      },
+      {
+        "suite": "city, currency and exploration engine",
+        "passed": 12
+      },
+      {
+        "suite": "expansion, settlement and naming",
+        "passed": 8
+      },
+      {
+        "suite": "warfare and era",
+        "passed": 11
+      },
+      {
+        "suite": "systems engine",
+        "passed": 21
+      },
+      {
+        "suite": "progression, industrialization and resistance",
+        "passed": 15
+      },
+      {
+        "suite": "governance and inheritance",
+        "passed": 13
+      },
+      {
+        "suite": "politics territory and war-objective",
+        "passed": 20
+      },
+      {
+        "suite": "terrain minerals and macroeconomic",
+        "passed": 16
+      },
+      {
+        "suite": "shared foreign rules and adaptive scheduling",
+        "passed": 18
+      },
+      {
+        "suite": "shared population growth",
+        "passed": 6
+      },
+      {
+        "suite": "land selection demolition and footprint",
+        "passed": 9
+      },
+      {
+        "suite": "policy initiation cost",
+        "passed": 8
+      },
+      {
+        "suite": "early diplomacy warfare and barter",
+        "passed": 6
+      },
+      {
+        "suite": "shared prosperity trust",
+        "passed": 7
+      }
+    ],
+    "finalWarfareRerun": 11,
+    "note": "Warfare suite rerun after correcting zero-technology opponent calculation; not counted twice."
+  },
+  "browser": {
+    "passed": 30,
+    "feature": 8,
+    "cityRegression": 22,
+    "errors": []
+  },
+  "rules": {
+    "initialKnownNeighbors": 0,
+    "eligibleExploredLandContactProbability": 0.65,
+    "contactSeedGridSize": 180,
+    "contactLimit": 8,
+    "warAvailableBeforeCouncil": true,
+    "standingArmyRequiresBarracks": true,
+    "currencyTradeRequiresBothParties": true
+  },
+  "limitations": [
+    "Hidden settlements are procedurally realized on completed exploration rather than running full hidden nation economies.",
+    "65 percent chance applies only to suitable land satisfying spacing requirements, not every expedition.",
+    "Inheritance mode preserves its existing neighboring cities."
+  ],
+  "syntaxChecks": 6,
+  "diffCheck": "passed"
+}

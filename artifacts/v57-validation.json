@@ -1,0 +1,137 @@
+{
+  "version": "5.7",
+  "date": "2026-11-18",
+  "engine_checks": 243,
+  "modules": [
+    {
+      "file": "progression-check.mjs",
+      "exit": 0,
+      "passed": 15,
+      "tail": "15 progression, industrialization and resistance checks passed."
+    },
+    {
+      "file": "third-engine-check.mjs",
+      "exit": 0,
+      "passed": 10,
+      "tail": "10 third-draft engine checks passed."
+    },
+    {
+      "file": "warfare-check.mjs",
+      "exit": 0,
+      "passed": 11,
+      "tail": "11 warfare and era checks passed."
+    },
+    {
+      "file": "society-check.mjs",
+      "exit": 0,
+      "passed": 12,
+      "tail": "12 society integration checks passed."
+    },
+    {
+      "file": "expansion-check.mjs",
+      "exit": 0,
+      "passed": 8,
+      "tail": "8 expansion, settlement and naming checks passed."
+    },
+    {
+      "file": "systems-check.mjs",
+      "exit": 0,
+      "passed": 21,
+      "tail": "21 systems engine checks passed."
+    },
+    {
+      "file": "land-economy-check.mjs",
+      "exit": 0,
+      "passed": 16,
+      "tail": "16 terrain minerals and macroeconomic checks passed."
+    },
+    {
+      "file": "politics-territory-check.mjs",
+      "exit": 0,
+      "passed": 20,
+      "tail": "20 politics territory and war-objective checks passed."
+    },
+    {
+      "file": "nations-check.mjs",
+      "exit": 0,
+      "passed": 18,
+      "tail": "18 shared foreign rules and adaptive scheduling checks passed."
+    },
+    {
+      "file": "policy-cost-check.mjs",
+      "exit": 0,
+      "passed": 8,
+      "tail": "8 policy initiation cost checks passed."
+    },
+    {
+      "file": "storage-check.mjs",
+      "exit": 0,
+      "passed": 10,
+      "tail": "10 safe save storage checks passed."
+    },
+    {
+      "file": "population-check.mjs",
+      "exit": 0,
+      "passed": 6,
+      "tail": "6 shared population growth checks passed."
+    },
+    {
+      "file": "city-engine-check.mjs",
+      "exit": 0,
+      "passed": 12,
+      "tail": "12 city, currency and exploration engine checks passed."
+    },
+    {
+      "file": "prosperity-check.mjs",
+      "exit": 0,
+      "passed": 7,
+      "tail": "7 shared prosperity trust checks passed."
+    },
+    {
+      "file": "early-diplomacy-check.mjs",
+      "exit": 0,
+      "passed": 6,
+      "tail": "6 early diplomacy warfare and barter checks passed."
+    },
+    {
+      "file": "building-tools-check.mjs",
+      "exit": 0,
+      "passed": 9,
+      "tail": "9 land selection demolition and footprint checks passed."
+    },
+    {
+      "file": "alliances-check.mjs",
+      "exit": 0,
+      "passed": 5,
+      "tail": "5 alliance and settlement checks passed"
+    },
+    {
+      "file": "development-check.mjs",
+      "exit": 0,
+      "passed": 7,
+      "tail": "7 development technology capacity and diplomacy checks passed."
+    },
+    {
+      "file": "war-economy-check.mjs",
+      "exit": 0,
+      "passed": 12,
+      "tail": "12 war economy and settlement checks passed"
+    },
+    {
+      "file": "statecraft-check.mjs",
+      "exit": 0,
+      "passed": 17,
+      "tail": "17 statecraft transition and diplomacy checks passed"
+    },
+    {
+      "file": "governance-check.mjs",
+      "exit": 0,
+      "passed": 13,
+      "tail": "13 governance and inheritance checks passed."
+    }
+  ],
+  "browser_checks": 8,
+  "real_save_recovery_checks": 22,
+  "browser_mode": "file://",
+  "runtime_errors": []
+}

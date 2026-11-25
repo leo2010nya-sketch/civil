@@ -11,7 +11,7 @@
   function normalize(n){n.population=n.cities.reduce((v,c)=>v+c.population,0);for(const c of n.cities)c.share=c.population/Math.max(1,n.population);if(n.cities.length){n.x=n.cities[0].x;n.y=n.cities[0].y;n.radius=n.cities[0].radius;}}
   function record(s,title,body,data={}){s.territory.history.unshift({title,body,time:s.year,...data});s.territory.history.length=Math.min(40,s.territory.history.length);E().notify(s,'milestone',title,body,{priority:'major',territory:true,...data,dedupe:'territory:'+title+':'+s.elapsed});}
   function expand(s,n){
-    if(n.cities.length>=8||root.CivilWarfare.isAtWar(s,n.id)||n.resources.food<n.population*.08||n.resources.wood<60||n.resources.treasury<40)return false;
+    if(n.cities.filter(c=>!c.satellite).length>=8||root.CivilWarfare.isAtWar(s,n.id)||n.resources.food<n.population*.08||n.resources.wood<60||n.resources.treasury<40)return false;
     const all=(s.neighbors||[]).flatMap(q=>q.cities.map(c=>({...c,nationId:q.id}))),serial=n.expansion.serial;
     let spot=null;
     for(let i=0;i<240;i++){
@@ -49,7 +49,7 @@
     let n=recipient;
     if(!n){const serial=++s.territory.serial;n={id:'breakaway-'+serial,name:c.name+'自由邦',color:'#bd927d',x:c.x,y:c.y,radius:former.radius,population:0,economy:0,technology:s.knowledge,resources:{},production:{},cities:[],relation:25,tension:45,tradeOpen:false,embargo:false,pactUntil:0,truceUntil:s.elapsed+8,guardUntil:0,lastIncident:s.elapsed,tradeLast:{imported:0,exported:0,tariff:0},origin:'independence'};s.neighbors.push(n);}
     for(const[k,v]of Object.entries(resources))n.resources[k]=(n.resources[k]||0)+v;
-    n.cities.push(former);n.economy=(n.economy||0)+c.population*.9;n.economyBaseline=Math.max(100,n.economy);normalize(n);n.foodStock=n.resources.food;
+    n.cities.push(former);E().transferUrbanJobs(s,s,n,c.id);n.economy=(n.economy||0)+c.population*.9;n.economyBaseline=Math.max(100,n.economy);normalize(n);n.foodStock=n.resources.food;
     root.CivilLogistics.initialize(s);initialize(s);
     if(reason!=='independence')record(s,c.name+'转归'+n.name,'城市、居民、当地设施及对应份额的公共储备已转移。',{x:c.x,y:c.y,nationId:n.id});
     return {ok:true,nationId:n.id,cityId:c.id};
@@ -57,10 +57,10 @@
   function inheritedAssets(s,c,id,founding=false){
     const out=[],defs=new Map(E().buildings.map(d=>[d.id,d])),grid=new Map(),cell=96;
     const insert=b=>{const key=Math.floor(b.x/cell)+':'+Math.floor(b.y/cell);if(!grid.has(key))grid.set(key,[]);grid.get(key).push(b);};
-    for(const b of s.buildings)insert(b);
+    for(const b of [...s.buildings,...(s.neighbors||[]).flatMap(n=>(n.cities||[]).flatMap(c=>c.assets||[])),...[s,...(s.neighbors||[])].flatMap(n=>(n.urbanism?.jobs||[]).filter(j=>j.phase==='demolition').map(j=>({type:j.type,size:j.size,...j.position})))])insert(b);
     const add=(type,size,min,max,index)=>{const d=defs.get(type);for(let i=0;i<180;i++){const a=(i+index*17)*2.399963,r=min+i*17%Math.max(1,max-min),x=c.x+Math.cos(a)*r,y=c.y+Math.sin(a)*r,t=root.CivilTerrain.sample(x,y,s.seed,s.geographyVersion||1);if(x<24||y<24||x>4072||y>4072||t.water)continue;
       const gx=Math.floor(x/cell),gy=Math.floor(y/cell);let blocked=false;
-      for(let yy=gy-2;yy<=gy+2&&!blocked;yy++)for(let xx=gx-2;xx<=gx+2;xx++)if(grid.get(xx+':'+yy)?.some(b=>Math.hypot(b.x-x,b.y-y)<((defs.get(b.type)?.footprint||16)*Math.sqrt(b.size||1)+d.footprint*Math.sqrt(size))*.44)){blocked=true;break;}
+      for(let yy=gy-2;yy<=gy+2&&!blocked;yy++)for(let xx=gx-2;xx<=gx+2;xx++)if(grid.get(xx+':'+yy)?.some(b=>E().buildingsOverlap({type,x,y,size},b))){blocked=true;break;}
       if(blocked)continue;const b={id:'transferred-'+(++s.buildingSerial),type,size,x,y,settlementId:id,status:'complete',progress:100,started:s.year};out.push(b);insert(b);return true;}return false;};
     if(!founding)['council','market','granary','workshop','well','warehouse'].forEach((t,i)=>add(t,1,25,165,i));
     const homeCount=Math.min(100,Math.ceil(c.population*1.08/210));
@@ -70,7 +70,7 @@
     const type=founding?'farm':'estate',output=founding?18:440;
     const farms=Math.ceil(c.population*.36/(output*factor));
     for(let i=0;i<Math.min(60,farms);i++)add(type,2,210,420,i);
-    const fields=out.filter(b=>b.type===type);if(!founding&&fields.length&&farms>fields.length)for(const b of fields)b.size=Math.max(2,Math.ceil(farms*2/fields.length));
+    const fields=out.filter(b=>b.type===type);if(!founding&&fields.length&&farms>fields.length)for(const b of fields)b.outputMultiplier=farms/fields.length;
     return out;
   }
   function acquireCities(s,n,ids,reason){
@@ -79,10 +79,10 @@
     for(const[k,v]of Object.entries(n.resources)){const amount=v*share;n.resources[k]-=amount;s.resources[k]=(s.resources[k]||0)+amount;if(s.storage.base[k]!=null)s.storage.base[k]=Math.max(s.storage.base[k],s.resources[k]);}
     for(const c of cities){
       let id=c.id;if(s.settlements.some(p=>p.id===id))id='integrated-'+(++s.territory.serial);
-      const home={id,name:c.name,x:c.x,y:c.y,population:c.population,level:c.population>=500?3:1,territoryRadius:Math.max(350,c.radius||220),integrationUntil:s.elapsed+25,acquiredFrom:n.name};
+      const home={id,name:c.name.replace(/(王国|帝国|共和国|公国|部族|氏族|联盟|自由邦|邦国|城邦|国家)$/,'').replace(/(城|地区)$/,'')+(c.population>=1000?'城':'地区'),x:c.x,y:c.y,population:c.population,level:c.population>=500?3:1,territoryRadius:Math.max(350,c.radius||220),integrationUntil:s.elapsed+25,acquiredFrom:n.name,architectureRegion:c.architectureRegion,satellite:c.satellite,parentId:c.parentId,urbanGrowth:c.urbanGrowth};
       const assets=c.assets?.length?c.assets.map(b=>({...b,settlementId:id})):inheritedAssets(s,c,id);
       for(const b of assets){if(s.buildings.some(p=>p.id===b.id))b.id='transferred-'+(++s.buildingSerial);s.buildings.push(b);}
-      s.settlements.push(home);s.explored.push({x:c.x,y:c.y,radius:565});
+      s.settlements.push(home);E().transferUrbanJobs(s,n,s,c.id,id);s.explored.push({x:c.x,y:c.y,radius:565});
       s.culture.regions[id]=c.cultureData||{tradition:70,cohesion:52,faith:{local:45,organized:50,secular:5},identity:c.name,festivalUntil:0,preservationUntil:0};
       for(const p of s.proposals)if(p.regions.includes('all')){p.localCoverage||={};p.localCoverage[id]=0;}
       root.CivilPolitics.initialize(s);s.unrest.regions[id].discontent=48;
@@ -97,20 +97,21 @@
     initialize(s);const n=s.neighbors.find(n=>n.id===id);if(!n)return {ok:false,eligible:false,message:'目标势力已不存在。'};
     const eco=root.CivilEconomy.quote(s).realGDP/Math.max(1,n.economy),enemyArmy=n.population*.045,army=s.warfare.soldiers/Math.max(1,enemyArmy);
     const cost={food:Math.ceil(n.population*.05),wood:40,...(s.currency?.adopted?{treasury:Math.ceil(n.economy*.08)}:{})};
-    const reasons=[];if(!s.cityFounded||!s.buildings.some(b=>b.type==='council'&&b.status==='complete'))reasons.push('尚未形成国家议事机构');if(!s.currency?.adopted)reasons.push('需要统一货币财政');
-    if(root.CivilWarfare.isAtWar(s,id))reasons.push('先结束战争');if(eco<1.5)reasons.push('经济优势不足 1.5 倍');if(army<1.5)reasons.push('现役兵力不足对方估计兵力的 1.5 倍');
+    const reasons=[];if(n.annexation?.cityId&&!n.cities.some(c=>c.id===n.annexation.cityId))reasons.push('谈判目标城市已转移');const cityId=n.assimilation?.cityId||n.cities.at(-1)?.id,assimilated=(n.assimilation?.progress||0)>=.95,victory=n.defeatedUntil>s.elapsed;if(!assimilated&&!victory)reasons.push('需先赢得战争，或以持续文化交流达到 95% 同化');if(!s.cityFounded||!s.buildings.some(b=>b.type==='council'&&b.status==='complete'))reasons.push('尚未形成国家议事机构');if(!s.currency?.adopted)reasons.push('需要统一货币财政');
+    if(root.CivilWarfare.isAtWar(s,id))reasons.push('先结束战争');if(eco<1.5)reasons.push('经济优势不足 1.5 倍');if(!assimilated&&army<1.5)reasons.push('现役兵力不足对方估计兵力的 1.5 倍');
     if(n.relation<65||n.tension>=45)reasons.push('需关系至少 65、紧张低于 45');if(s.stability<50)reasons.push('本国信任不足 50');
     if(n.annexCooldown>s.elapsed)reasons.push('前次谈判尚在冷却');if(s.unrest?.noble.refusing)reasons.push('贵族仍拒绝执行整合命令');
-    return {ok:true,eligible:!reasons.length,economyRatio:eco,militaryRatio:army,cost,reasons,negotiation:n.annexation||null,years:4};
+    return {ok:true,eligible:!reasons.length,economyRatio:eco,militaryRatio:army,cost,reasons,negotiation:n.annexation||null,years:8,cityId,direct:false,assimilation:n.assimilation?.progress||0};
   }
   function annex(s,id){const n=s.neighbors.find(n=>n.id===id),q=annexOffer(s,id);if(!q.eligible||!n)return {ok:false,message:q.reasons?.join('；')||'暂不能谈判兼并。'};if(n.annexation)return {ok:false,message:'兼并谈判正在进行。'};if(Object.entries(q.cost).some(([k,v])=>s.resources[k]<v))return {ok:false,message:'缺少谈判与整合所需储备。'};
-    for(const[k,v]of Object.entries(q.cost))s.resources[k]-=v;n.annexation={started:s.elapsed,years:q.years,cost:{...q.cost}};return {ok:true,message:'四年兼并谈判已开始，期间需保持实力与外交条件'};
+    for(const[k,v]of Object.entries(q.cost))s.resources[k]-=v;n.annexation={started:s.elapsed,years:q.years,cityId:q.cityId,cost:{...q.cost}};return {ok:true,message:'八年单城整合谈判已开始，期间需保持实力与外交条件'};
   }
-  function tariffs(s,n){const t=n.commercialTreaty,active=t?.until>s.elapsed;return {foreign:active&&t.beneficiary==='player'?Math.min(n.tariffRate,.02):n.tariffRate,domestic:active&&t.beneficiary==='neighbor'?Math.min(s.taxation?.rates.customs||0,.02):s.taxation?.rates.customs||0};}
+  function integrateTribe(){return false;}
+  function tariffs(s,n){const t=n.commercialTreaty,active=t?.until>s.elapsed,allied=n.commercialAlliance?.until>s.elapsed;return {foreign:(allied||active&&t.beneficiary==='player')?Math.min(n.tariffRate,.02):n.tariffRate,domestic:(allied||active&&t.beneficiary==='neighbor')?Math.min(root.CivilStatecraft.taxRate(s,'customs'),.02):root.CivilStatecraft.taxRate(s,'customs')};}
   function tick(s){initialize(s);for(const n of [...s.neighbors]){
-    if(n.annexation){const q=annexOffer(s,n.id);if(!q.eligible){n.annexation=null;n.annexCooldown=s.elapsed+10;record(s,'与'+n.name+'的兼并谈判中止',q.reasons.join('；')+'。前期组织与谈判支出已经耗用。',{nationId:n.id});}else if(s.elapsed-n.annexation.started>=n.annexation.years){n.annexation=null;acquireCities(s,n,n.cities.map(c=>c.id),'和平兼并谈判完成');}}
+    if(n.annexation){const q=annexOffer(s,n.id);if(!q.eligible){n.annexation=null;n.annexCooldown=s.elapsed+10;record(s,'与'+n.name+'的兼并谈判中止',q.reasons.join('；')+'。前期组织与谈判支出已经耗用。',{nationId:n.id});}else if(s.elapsed-n.annexation.started>=n.annexation.years){const cityId=n.annexation.cityId||n.cities.at(-1)?.id;n.annexation=null;acquireCities(s,n,[cityId],'长期单城整合谈判完成');if(n.assimilation){n.assimilation.progress=0;n.assimilation.cityId=n.cities.at(-1)?.id;}n.annexCooldown=s.elapsed+12;}}
     if(!s.neighbors.includes(n))continue;
-    if(s.elapsed>=n.expansion.nextAt){expand(s,n);n.expansion.nextAt=s.elapsed+12+Math.floor(root.CivilTerrain.hash(n.expansion.serial,n.x,s.seed+9101)*10);}
+    if(s.elapsed>=n.expansion.nextAt){const target=s.neighbors.find(d=>d!==n&&E().tribalIntegrationOffer(n,d).eligible&&Math.hypot(n.x-d.x,n.y-d.y)<=650);if(target)integrateTribe(s,n,target);else expand(s,n);n.expansion.nextAt=s.elapsed+12+Math.floor(root.CivilTerrain.hash(n.expansion.serial,n.x,s.seed+9101)*10);}
   }}
-  root.CivilTerritory={initialize,tick,expand,normalize,releaseCity,acquireCities,annexOffer,annex,tariffs,inheritedAssets};
+  root.CivilTerritory={initialize,tick,expand,normalize,releaseCity,acquireCities,annexOffer,annex,integrateTribe,tariffs,inheritedAssets};
 })(typeof window!=='undefined'?window:globalThis);

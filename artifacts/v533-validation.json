@@ -1,0 +1,90 @@
+{
+  "version": "5.3.3",
+  "date": "2026-11-12",
+  "result": "passed",
+  "engineChecks": 187,
+  "suites": [
+    {
+      "suite": "safe save storage",
+      "passed": 10
+    },
+    {
+      "suite": "third-draft engine",
+      "passed": 10
+    },
+    {
+      "suite": "shared population growth",
+      "passed": 6
+    },
+    {
+      "suite": "shared prosperity trust",
+      "passed": 7
+    },
+    {
+      "suite": "terrain minerals and macroeconomic",
+      "passed": 16
+    },
+    {
+      "suite": "progression, industrialization and resistance",
+      "passed": 15
+    },
+    {
+      "suite": "city, currency and exploration engine",
+      "passed": 12
+    },
+    {
+      "suite": "expansion, settlement and naming",
+      "passed": 8
+    },
+    {
+      "suite": "governance and inheritance",
+      "passed": 13
+    },
+    {
+      "suite": "society integration",
+      "passed": 12
+    },
+    {
+      "suite": "systems engine",
+      "passed": 21
+    },
+    {
+      "suite": "shared foreign rules and adaptive scheduling",
+      "passed": 18
+    },
+    {
+      "suite": "politics territory and war-objective",
+      "passed": 20
+    },
+    {
+      "suite": "warfare and era",
+      "passed": 11
+    },
+    {
+      "suite": "policy initiation cost",
+      "passed": 8
+    }
+  ],
+  "sharedProsperityRule": {
+    "observationIntervalYears": 1,
+    "requiredConsecutiveYears": 2,
+    "minimumGrowingResourceTypes": 2,
+    "declineTolerance": 0.001,
+    "trustTarget": 95,
+    "playerAndForeignNations": true
+  },
+  "checks": [
+    "Persistent growth raises trust gradually",
+    "Windfall or static stocks do not trigger prosperity",
+    "Shortages overcrowding war and unrest stop the effect",
+    "Declining active reserves and currency treasury block prosperity",
+    "Trend survives save/reload",
+    "Trust stays bounded",
+    "Both simulations invoke the same function"
+  ],
+  "syntaxChecks": [
+    "engine.js",
+    "nations.js"
+  ],
+  "gitDiffCheck": "passed"
+}

@@ -3,7 +3,7 @@ import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 
 const context=vm.createContext({window:{}});
-for(const file of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','engine'])vm.runInContext(await readFile(new URL(`../${file}.js`,import.meta.url),'utf8'),context);
+for(const file of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','statecraft','engine'])vm.runInContext(await readFile(new URL(`../${file}.js`,import.meta.url),'utf8'),context);
 const E=context.window.CivilEngine,T=context.window.CivilTerrain;
 const plain=value=>JSON.parse(JSON.stringify(value));
 const definition=id=>E.buildings.find(d=>d.id===id);
@@ -40,7 +40,7 @@ function freePlot(s,type,home=s.settlements[0]){
  for(let i=0;i<300;i++){
   const a=i*2.399963,r=100+Math.floor(i/12)*16,x=home.x+Math.cos(a)*r,y=home.y+Math.sin(a)*r;
   if(T.sample(x,y,s.seed).water||!E.isExplored(s,x,y))continue;
-  if(s.buildings.some(b=>b.status!=='failed'&&Math.hypot(b.x-x,b.y-y)<((d.footprint||20)+(definition(b.type)?.footprint||12))*.42))continue;
+  if(E.occupiedBuildings(s).some(b=>E.buildingsOverlap({type,x,y,size:1},b)))continue;
   return{x,y};
  }
  throw Error(`No free plot for ${type}`);
@@ -117,7 +117,7 @@ check('water mills require a riverside site and rejected inland construction doe
   for(let i=0;i<400;i++){
    const a=i*2.399963,r=150+Math.floor(i/15)*10,x=home.x+Math.cos(a)*r,y=home.y+Math.sin(a)*r,p=T.sample(x,y,s.seed);
    if(p.water||!E.isExplored(s,x,y)||(river?p.river>100:p.river<180))continue;
-   if(s.buildings.some(b=>b.status!=='failed'&&Math.hypot(x-b.x,y-b.y)<((d.footprint||20)+(definition(b.type)?.footprint||12))*.42))continue;
+   if(E.occupiedBuildings(s).some(b=>E.buildingsOverlap({type:'watermill',x,y,size:1},b)))continue;
    return {x,y};
   }
   throw Error(`No ${river?'riverside':'inland'} water-mill test site`);

@@ -1,0 +1,108 @@
+{
+  "version": "5.4",
+  "date": "2026-11-12",
+  "result": "passed",
+  "engine": {
+    "passed": 209,
+    "suites": [
+      {
+        "suite": "safe save storage",
+        "passed": 10
+      },
+      {
+        "suite": "society integration",
+        "passed": 12
+      },
+      {
+        "suite": "terrain minerals and macroeconomic",
+        "passed": 16
+      },
+      {
+        "suite": "progression, industrialization and resistance",
+        "passed": 15
+      },
+      {
+        "suite": "warfare and era",
+        "passed": 11
+      },
+      {
+        "suite": "early diplomacy warfare and barter",
+        "passed": 6
+      },
+      {
+        "suite": "governance and inheritance",
+        "passed": 13
+      },
+      {
+        "suite": "shared population growth",
+        "passed": 6
+      },
+      {
+        "suite": "systems engine",
+        "passed": 21
+      },
+      {
+        "suite": "expansion, settlement and naming",
+        "passed": 8
+      },
+      {
+        "suite": "city, currency and exploration engine",
+        "passed": 12
+      },
+      {
+        "suite": "third-draft engine",
+        "passed": 10
+      },
+      {
+        "suite": "politics territory and war-objective",
+        "passed": 20
+      },
+      {
+        "suite": "shared prosperity trust",
+        "passed": 7
+      },
+      {
+        "suite": "development technology capacity and diplomacy",
+        "passed": 7
+      },
+      {
+        "suite": "policy initiation cost",
+        "passed": 8
+      },
+      {
+        "suite": "shared foreign rules and adaptive scheduling",
+        "passed": 18
+      },
+      {
+        "suite": "land selection demolition and footprint",
+        "passed": 9
+      }
+    ]
+  },
+  "browser": {
+    "passed": 52,
+    "newFeatureChecks": 8,
+    "cityRegression": 22,
+    "realLegacyFileRecovery": 22,
+    "errors": []
+  },
+  "syntaxChecks": 9,
+  "diffWhitespaceCheck": "passed",
+  "screenshots": [
+    "artifacts/v54-01-development.png",
+    "artifacts/v54-02-capacity.png",
+    "artifacts/v54-03-mobile.png"
+  ],
+  "sharedRules": [
+    "Craft-derived technology affects both nations production, manufacturing, combat and economy.",
+    "Same overwhelming economy, legitimacy and material criteria apply to tribal integration by player or foreign states.",
+    "Diplomacy transitions persist in snapshots."
+  ],
+  "limitations": [
+    "Capacity is a scenario estimate for existing population and assets, not a guaranteed maximum-profit optimization.",
+    "Development paths expose only the immediate node on each of three lanes and do not lock other gameplay routes.",
+    "Illustrative craft goods are not inventory items.",
+    "Simplified hostile camps receive representative assets when integrated.",
+    "No remote publication was performed in this update."
+  ]
+}

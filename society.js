@@ -5,7 +5,7 @@
   const finite = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
   const clamp = (value, low, high) => Math.max(low, Math.min(high, finite(value, low)));
   const population = state => Math.max(0, finite(state.population));
-  const hasCurrency = state => !!state.currency?.adopted;
+  const hasCurrency = state => root.CivilStatecraft.currencyShare(state)>=.6;
   const now = state => Math.max(0, finite(state.elapsed));
   const approach = (value, target, dt, years) => value + (target - value) * (1 - Math.exp(-dt / years));
   const taxDefinitions = [
@@ -138,9 +138,9 @@
       vat: Math.min(people * .13, people * .025 + production * 1.2 + commerce * .7) * supply
     };
     const lines = definitions.map(definition => {
-      const rate = state.taxation.rates[definition.id];
+      const rate = root.CivilStatecraft.taxRate(state,definition.id);
       const base = Math.max(0, bases[definition.id])*(definition.id==='customs'?1:(hasCurrency(state)?state.economy?.activity??1:1)*(root.CivilPolitics?.average(state,root.CivilPolitics.compliance)??1));
-      const revenue=definition.id==='customs'?(state.neighbors||[]).reduce((v,n)=>v+(n.tradeOpen&&!n.embargo&&n.tension<65&&n.relation>=15?(n.tradeLast?.importValue??n.tradeLast?.imported??0)*(root.CivilTerritory?.tariffs(state,n).domestic??rate):0),0):base*rate;
+      const revenue=definition.id==='customs'?(state.neighbors||[]).reduce((v,n)=>v+(n.tradeOpen&&!n.embargo&&n.tension<65&&n.relation>=15?(n.tradeLast?.importValue??n.tradeLast?.imported??0)*(root.CivilTerritory?.tariffs(state,n).domestic??rate):0),0):base*rate*root.CivilStatecraft.currencyShare(state);
       return { ...definition, rate, base, revenue };
     });
     const active = Object.fromEntries(lines.map(line => [line.id, line.rate]));
@@ -161,8 +161,9 @@
     const value = Number(rate);
     if (!Number.isFinite(value) || value < 0 || value > definition.max) return { ok: false, message: '税率超出可用范围。' };
     const before=taxQuote(state);
-    const old = state.taxation.rates[id];
-    if (Math.abs(old - value) < .000001) return { ok: true, message: '税率未变。' };
+    const old = root.CivilStatecraft.taxRate(state,id);
+    if (Math.abs(state.taxation.rates[id] - value) < .000001) return { ok: true, message: '税率未变。' };
+    if(state.taxation.transitions)delete state.taxation.transitions[id];
     state.taxation.rates[id] = value;
     if (id === 'poll' && state.budget) state.budget.taxRate = value;
     const increase = Math.max(0, value - old);
@@ -172,6 +173,7 @@
     if (church && id === 'land' && !state.taxation.exemptClergy) church.support = clamp(church.support - increase * 30, 0, 100);
     const after=taxQuote(state);
     const delta=after.total-before.total;
+    state.taxation.transitions||={};state.taxation.transitions[id]={from:old,to:value,age:0};
     state.taxation.lastChange={id,old,rate:value,revenueDelta:delta,burdenDelta:after.burden-before.burden,time:now(state)};
     return { ok: true, message: `${definition.name} ${(old*100).toFixed(0)}% → ${(value*100).toFixed(0)}% · 预计税收 ${delta>=0?'+':''}${delta.toFixed(1)}/年`, drawback: definition.drawback };
   }
@@ -347,6 +349,7 @@
     initialize(state);
     const dt = clamp(years, 0, 120);
     if (!dt) return state;
+    cultureReport(state, dt);
     const quote = taxQuote(state);
     if (hasCurrency(state)) state.resources.treasury = clamp(finite(state.resources.treasury) + quote.total * dt, 0, 9999999);
     state.taxation.totalCollected=(state.taxation.totalCollected||0)+quote.total*dt;
@@ -420,6 +423,25 @@
       }
     }
     return state;
+  }
+
+  function cultureReport(state, dt) {
+    const c=state.culture;
+    c.reportClock=(c.reportClock||0)+dt;
+    if(c.reportClock<50)return;
+    c.reportClock-=50;
+    const summary=cultureSummary(state), before=c.lastReport||summary;
+    c.lastReport={tradition:summary.tradition,cohesion:summary.cohesion,organized:summary.faith.organized,secular:summary.faith.secular};
+    emit(state,'五十年文化报告',`文化传承 ${Math.round(summary.tradition)}（${summary.tradition>=before.tradition?'+':''}${Math.round(summary.tradition-before.tradition)}）· 社会凝聚 ${Math.round(summary.cohesion)} · 教团影响 ${Math.round(summary.clergyInfluence)}。文化主要由人口流动、教育、贸易和地方传统共同形成。`,'society:culture-report:'+Math.floor(state.elapsed/50));
+    const church=clergy(state), home=state.settlements?.[0];
+    if(church&&church.influence>=72&&!c.churchCity&&home&&state.settlements.length<12){
+      let spot=null;
+      for(let i=1;i<80&&!spot;i++){const a=i*2.399963,r=900+(i%7)*80,p={x:home.x+Math.cos(a)*r,y:home.y+Math.sin(a)*r};if(p.x>80&&p.y>80&&p.x<4016&&p.y<4016&&!state.settlements.some(s=>Math.hypot(s.x-p.x,s.y-p.y)<500)&&!root.CivilTerrain.sample(p.x,p.y,state.seed,state.geographyVersion||1).water)spot=p;}
+      if(spot){const id='church-city-'+(++state.settlementSerial);const city={id,name:'圣城',x:spot.x,y:spot.y,population:18,level:0,radius:150,territoryRadius:300,founded:state.elapsed,architectureRegion:'sacred'};state.settlements.push(city);state.explored.push({x:city.x,y:city.y,radius:360});
+        const add=(type,dx,dy)=>{const bid='building-'+(++state.buildingSerial);state.buildings.push({id:bid,type,x:spot.x+dx,y:spot.y+dy,size:1,status:'complete',progress:100,settlementId:id,started:state.year});};
+        add('hut',-22,-12);add('hut',24,16);add('hut',-5,34);add('farm',62,-36);add('shrine',-55,50);
+        state.population=state.settlements.reduce((n,s)=>n+s.population,0);c.regions[id]={tradition:64,cohesion:82,faith:{local:8,organized:88,secular:4},identity:city.name,festivalUntil:0,preservationUntil:0};c.churchCity=id;emit(state,'远方教会城市建立','宗教组织在远离核心的地区建立了教会城市，成为朝圣、教育与跨地区联络的中心。','society:church-city');}
+    }
   }
 
   root.CivilSociety = { initialize, tick, taxOptions, taxQuote, setTax, setExemption, cultureOptions, cultureAction, cultureSummary, nobleOptions, nobleAction };

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 const context=vm.createContext({window:{}});
-for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),context);
+for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','statecraft','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),context);
 const E=context.window.CivilEngine,W=context.window.CivilWarfare;
 const clone=s=>JSON.parse(JSON.stringify(s));
 const baseline=E.create(48271,'边城','city');
@@ -10,8 +10,8 @@ let passed=0;
 function check(name,fn){fn();passed++;console.log(`✓ ${name}`);}
 function fixture(){const s=E.initialize(clone(baseline));s.events=[];s.resources={...s.resources,food:100000,wood:100000,stone:100000,treasury:100000};for(const key of Object.keys(s.storage.base))s.storage.base[key]=Math.max(s.storage.base[key],s.resources[key]);return s;}
 function war(s){assert.ok(E.mobilize(s,'levy').ok);assert.ok(E.declareWar(s,s.neighbors[0].id).ok);return s.warfare.wars[0];}
-check('war stays unavailable in the initial village and standing army needs a barracks',()=>{
- const s=E.create(1,'小村');assert.equal(E.warSummary(s).available,false);assert.equal(E.mobilize(s,'levy').ok,false);
+check('war and levies open in the initial village while standing armies still need a barracks',()=>{
+ const s=E.create(1,'小村');assert.equal(E.warSummary(s).available,true);assert.equal(E.mobilize(s,'levy').ok,true);
  const t=fixture();assert.equal(E.mobilize(t,'army').ok,false);
  t.buildings.push({id:'barracks-test',type:'barracks',status:'complete',size:1,x:2200,y:2048});assert.ok(E.mobilize(t,'army').ok);
 });
@@ -51,9 +51,9 @@ check('automatic battles can win or lose and casualties reduce both army and pop
  assert.equal(results.size,2,'battle results must depend on the random draw');
 });
 check('neighbors can initiate war after diplomacy collapses while treaties prevent it',()=>{
- const s=fixture(),n=s.neighbors[0];n.tension=99;n.relation=0;s.elapsed=10;s.rngState=1972;
+ const s=fixture(),n=s.neighbors[0];n.tension=99;n.relation=0;s.stability=20;s.elapsed=10;s.rngState=1972;
  // Find a seed whose first draw falls within the passive-declaration probability.
- for(let seed=1;seed<100000;seed++){if(((Math.imul(seed,1664525)+1013904223)>>>0)/4294967296<.02){s.rngState=seed;break;}}
+ for(let seed=1;seed<100000;seed++){if(((Math.imul(seed,1664525)+1013904223)>>>0)/4294967296<.00625){s.rngState=seed;break;}}
  const protectedState=E.initialize(clone(s));protectedState.neighbors[0].pactUntil=30;
  W.tick(s,.25);W.tick(protectedState,.25);
  assert.equal(s.warfare.wars.length,1);assert.equal(s.warfare.wars[0].aggressor,false);assert.ok(s.warfare.soldiers>0);
@@ -85,7 +85,7 @@ check('a village-developed city can make foreign contact through completed front
  s.resources={...s.resources,food:100000,wood:100000,stone:100000,treasury:0};
  for(const key of Object.keys(s.storage.base))s.storage.base[key]=Math.max(s.storage.base[key],s.resources[key]);
  s.buildings.push({id:'council-contact',type:'council',status:'complete',size:1,x:2200,y:2048});
- let p;for(let i=0;i<36;i++){const a=i*.19,x=2048+Math.cos(a)*820,y=2048+Math.sin(a)*820;if(!context.window.CivilTerrain.sample(x,y,s.seed).water){p={x,y};break;}}
+ let p;for(let i=0;i<36;i++){const a=i*.19,x=2048+Math.cos(a)*820,y=2048+Math.sin(a)*820;if(!context.window.CivilTerrain.sample(x,y,s.seed,s.geographyVersion).water&&context.window.CivilTerrain.hash(Math.floor(x/180),Math.floor(y/180),s.seed+7717)<.65){p={x,y};break;}}
  assert.ok(p);s.explored.push({x:p.x-220,y:p.y,radius:100});const result=E.explore(s,p.x,p.y);assert.ok(result.ok,result.message);
  assert.equal(s.neighbors.length,0);E.tick(s,result.duration+.25);assert.equal(s.neighbors.length,1);
  assert.ok(s.history.some(h=>h.data.nationId===s.neighbors[0].id));assert.ok(E.foreignAction(s,s.neighbors[0].id,'trade').ok);

@@ -2,11 +2,12 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 const ctx=vm.createContext({window:{}});
-for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),ctx);
+for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','statecraft','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),ctx);
 const {CivilEngine:E,CivilNations:N,CivilLogistics:L,CivilTerritory:T,CivilMinerals:M}=ctx.window;
 const copy=v=>JSON.parse(JSON.stringify(v)),near=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} != ${b}`);
 let passed=0;function check(name,fn){fn();passed++;console.log('✓ '+name);}
-function city(){const s=E.create(48271,'共同规则','city');for(const n of s.neighbors)n.development.autoBuild=false;return s;}
+const nationBaseline=E.create(48271,'共同规则','city');
+function city(){const s=E.initialize(copy(nationBaseline));for(const n of s.neighbors)n.development.autoBuild=false;return s;}
 function small(){const s=city(),n=s.neighbors[0];s.neighbors=[n];n.cities=[n.cities[0]];const c=n.cities[0];n.population=c.population=100;c.share=1;c.assets=[{id:'test-home',type:'townhouse',size:3,status:'complete',settlementId:c.id,x:c.x,y:c.y}];n.resources=Object.fromEntries([...L.resources.map(r=>[r.id,0]),['treasury',1000]]);n.resources.food=1000;n.resources.wood=1000;n.resources.stone=1000;n.taxRate=0;n.development.initialPopulation=100;n.development.initialEconomy=100;return {s,n,c};}
 check('legacy migration preserves population stocks and existing foreign building identities',()=>{
  const s=city(),n=s.neighbors[0],stock=copy(n.resources),population=n.population,ids=n.cities.flatMap(c=>c.assets.map(b=>b.id));delete n.development;delete n.storage;E.initialize(s);near(n.population,population);assert.deepEqual(copy(n.resources),stock);assert.deepEqual(n.cities.flatMap(c=>c.assets.map(b=>b.id)),ids);assert.ok(n.cities.every(c=>N.housing(c)>=c.population));
@@ -25,7 +26,7 @@ check('technology alone never produces absent minerals or manufactured goods',()
  const {s,n}=small();n.technology=9999;N.advance(s,1);for(const k of ['iron','coal','copper','gold','tools','cloth','medicine'])near(n.resources[k],0);
 });
 check('foreign processing stops without inputs and consumes actual raw materials when available',()=>{
- const {s,n,c}=small();c.assets.push({id:'tools',type:'toolworks',size:1,status:'complete',settlementId:c.id,x:c.x+50,y:c.y});N.advance(s,.5);near(n.resources.tools,0);n.resources.iron=10;const wood=n.resources.wood;N.advance(s,1);assert.ok(n.resources.tools>0);assert.ok(n.resources.iron<10&&n.resources.iron>=8);near(10-n.resources.iron,n.development.last.gross.tools/1.5*2);assert.ok(n.development.last.used.wood>0);assert.ok(n.resources.wood<wood+5);
+ const {s,n,c}=small();c.assets.push({id:'tools',type:'toolworks',size:1,status:'complete',settlementId:c.id,x:c.x+50,y:c.y});N.advance(s,.5);near(n.resources.tools,0);n.resources.iron=10;const wood=n.resources.wood;N.advance(s,.05);assert.ok(n.resources.tools>0);assert.ok(n.resources.iron<10&&n.resources.iron>=10-2*1.4*.05);near(10-n.resources.iron,n.development.last.used.iron*.05);assert.ok(n.development.last.used.wood>0);assert.ok(n.resources.wood<wood+5);
 });
 check('foreign mining consumes the same finite deposits and full warehouses prevent extraction',()=>{
  const {s,n,c}=small(),deposit=M.deposits(s).find(d=>d.type==='clay');c.assets.push({id:'foreign-clay',type:'claypit',status:'complete',size:1,settlementId:c.id,x:deposit.x,y:deposit.y});s.minerals.sites['foreign-clay']=deposit.id;s.minerals.used[deposit.id]=deposit.reserves-2;
@@ -39,7 +40,7 @@ check('foreign logging depletes shared map forests and cannot harvest after exha
 });
 check('foreign construction enforces technology population prerequisites currency and real costs',()=>{
  const {s,n,c}=small();assert.equal(N.canBuild(n,c,E.buildings.find(d=>d.id==='factory')),false);assert.equal(N.canBuild(n,c,E.buildings.find(d=>d.id==='publicschool')),false);n.currency=false;assert.equal(N.canBuild(n,c,E.buildings.find(d=>d.id==='forge')),false);n.currency=true;
- const wood=n.resources.wood;assert.ok(N.build(s,n,c,'hut'));const b=c.assets.at(-1);near(wood-n.resources.wood,b.cost.wood);const housing=N.housing(c);N.advance(s,.5);assert.equal(b.status,'building');near(N.housing(c),housing);N.advance(s,2);assert.equal(b.status,'complete');near(N.housing(c),housing+7);
+ const wood=n.resources.wood;assert.ok(N.build(s,n,c,'hut'));const b=c.assets.at(-1);near(wood-n.resources.wood,b.cost.wood);const housing=N.housing(c);N.advance(s,.5);assert.equal(b.status,'building');near(N.housing(c),housing);N.advance(s,4);assert.equal(b.status,'complete');near(N.housing(c),housing+7);
 });
 check('automatic foreign planning spends reserves and does not create free facilities when insolvent',()=>{
  const {s,n,c}=small();n.development.autoBuild=true;n.resources.wood=n.resources.stone=n.resources.treasury=0;const count=c.assets.length;N.plan(s,n);assert.equal(c.assets.length,count);n.resources.wood=n.resources.stone=1000;N.plan(s,n);assert.ok(c.assets.some(b=>b.status==='building'));assert.ok(n.resources.wood<1000);

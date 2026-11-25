@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';import vm from 'node:vm';import{readFile}from'node:fs/promises';
-const c=vm.createContext({window:{}});for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),c);
+const c=vm.createContext({window:{}});for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','statecraft','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),c);
 const E=c.window.CivilEngine,plain=x=>JSON.parse(JSON.stringify(x));let passed=0;const check=(name,fn)=>{fn();passed++;console.log('✓ '+name);};
 const proposal=(extra={})=>({name:'公共采集',clauses:['forage'],regions:['all'],target:'all',executor:'community',condition:'always',duration:0,...extra});
 const village=()=>E.create(48271,'发起支出'),rich=()=>{const s=E.create(48271,'财政安排','city');for(const k of ['food','wood','stone','treasury'])s.resources[k]=100000;return s;};

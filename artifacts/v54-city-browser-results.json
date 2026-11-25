@@ -1,0 +1,28 @@
+{
+  "passed": 22,
+  "checks": [
+    "startup offers village and city modes",
+    "city mode previews its population and neighbors",
+    "city starts with real buildings and two surrounding countries",
+    "inheritance starts with currency and an active fiscal HUD",
+    "inheritance fiscal planning exposes established taxation",
+    "both countries offer real trade and diplomatic actions",
+    "open route produces actual imports and exports",
+    "clicking a foreign city opens its diplomacy",
+    "envoy changes relations through the government action",
+    "negotiated pact has a real expiry",
+    "embargo stops a route and changes geopolitics",
+    "inherited currency does not ask the player to introduce it again",
+    "inherited currency enables monetary HUD and fiscal planning",
+    "taxes only collect after adoption",
+    "map click dispatches a timed expedition without immediate reveal",
+    "exploration queue and map show progress while land remains unknown",
+    "save reload retains currency diplomacy and expedition progress",
+    "arrival reveals the destination and removes the active mission",
+    "mobile diplomacy stays within the viewport",
+    "village exposes neither currency innovation nor monetary UI",
+    "legacy monetary policy records do not reveal unavailable content",
+    "no browser runtime exceptions"
+  ],
+  "errors": []
+}

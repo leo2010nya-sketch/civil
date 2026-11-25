@@ -1,0 +1,14 @@
+{
+  "passed": 8,
+  "checks": [
+    "clicking actual empty land opens its traits rather than a build catalog",
+    "land inspection keeps a direct route into construction",
+    "demolition confirmation previews food time and reclaimed resources",
+    "confirmation spends food disables the building and shows demolition progress",
+    "save reload retains an active demolition job",
+    "completed demolition removes the structure and reports completion",
+    "mobile demolition dialog fits the viewport",
+    "no browser runtime exceptions"
+  ],
+  "errors": []
+}

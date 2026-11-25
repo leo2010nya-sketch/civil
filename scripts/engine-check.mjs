@@ -18,3 +18,21 @@ import './politics-territory-check.mjs';
 import './nations-check.mjs';
 import './policy-cost-check.mjs';
 import './storage-check.mjs';
+
+import './population-check.mjs';
+
+import './prosperity-check.mjs';
+
+import './building-tools-check.mjs';
+
+import './early-diplomacy-check.mjs';
+
+import './development-check.mjs';
+
+import './alliances-check.mjs';
+
+import './war-economy-check.mjs';
+
+import './statecraft-check.mjs';
+
+import './urbanism-check.mjs';

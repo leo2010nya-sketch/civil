@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 const ctx=vm.createContext({window:{}});
-for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),ctx);
+for(const f of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','statecraft','engine'])vm.runInContext(await readFile(new URL(`../${f}.js`,import.meta.url),'utf8'),ctx);
 const E=ctx.window.CivilEngine,T=ctx.window.CivilTerrain;
 const plain=x=>JSON.parse(JSON.stringify(x));
 const template=E.create(48271,'家园','inherit');
@@ -45,7 +45,7 @@ check('new policy effects include real defense, administration, knowledge and fo
 check('banks and mints require player currency and provide real capacity rather than free principal',()=>{
  const s=E.initialize(plain(template));s.currency.adopted=false;s.resources.treasury=0;s.knowledge=125;s.buildings=s.buildings.filter(b=>b.type!=='bank');for(const type of ['guildhall','fair'])complete(s,type);const ids=['bank','mint','exchange'];
  for(const id of ids)assert.equal(E.available(s,E.buildings.find(d=>d.id===id)).ok,false);
- assert.ok(E.introduceCurrency(s).ok);s.resources.treasury=1000;const before=E.stats(s),stock=s.resources.treasury;
+ assert.ok(E.introduceCurrency(s).ok);assert.equal(E.available(s,E.buildings.find(d=>d.id==='bank')).ok,false);s.currency.effectiveYears=20;s.currency.coverage=.96;s.resources.treasury=1000;const before=E.stats(s),stock=s.resources.treasury;
  assert.ok(E.available(s,E.buildings.find(d=>d.id==='bank')).ok);complete(s,'bank');const after=E.stats(s);
  assert.equal(s.resources.treasury,stock);assert.ok(after.constructionBonus>before.constructionBonus);assert.ok(after.treasuryRate>before.treasuryRate);
  assert.equal(E.available(s,E.buildings.find(d=>d.id==='exchange')).ok,false);s.knowledge=150;assert.ok(E.available(s,E.buildings.find(d=>d.id==='exchange')).ok);

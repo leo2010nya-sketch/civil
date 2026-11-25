@@ -3,7 +3,7 @@ import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 
 const context=vm.createContext({window:{}});
-for(const file of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','engine'])vm.runInContext(await readFile(new URL(`../${file}.js`,import.meta.url),'utf8'),context);
+for(const file of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','statecraft','engine'])vm.runInContext(await readFile(new URL(`../${file}.js`,import.meta.url),'utf8'),context);
 const E=context.window.CivilEngine,T=context.window.CivilTerrain;
 const clone=value=>JSON.parse(JSON.stringify(value));
 const village=()=>E.create(48271,'河湾');
@@ -64,9 +64,9 @@ check('a developed barter save and currency adoption pays real costs before enab
  const s=barter();assert.equal(E.hasCurrency(s),false);assert.ok(E.canIntroduceCurrency(s).ok);
  assert.equal(E.stats(s).treasuryRate,0);assert.equal(s.resources.treasury,0);
  const before=clone(s.resources),trust=s.stability;
- assert.ok(E.introduceCurrency(s).ok);assert.equal(E.hasCurrency(s),true);
+ assert.ok(E.introduceCurrency(s).ok);assert.equal(E.hasCurrency(s),false);E.currencyShare(s);s.currency.effectiveYears=20;s.currency.coverage=.96;assert.equal(E.hasCurrency(s),true);
  assert.equal(s.resources.wood,before.wood-24);assert.equal(s.resources.stone,before.stone-18);assert.ok(s.stability<trust);
- assert.ok(E.setBudget(s,'taxRate',.2).ok);assert.ok(E.stats(s).treasuryRate>0);
+ assert.ok(E.setBudget(s,'taxRate',.2).ok);assert.equal(context.window.CivilStatecraft.taxRate(s,'poll'),0);s.taxation.transitions.poll.age=20;assert.ok(E.stats(s).treasuryRate>0);
  E.tick(s,1);assert.ok(s.resources.treasury>0);
  const after=clone(s.resources);assert.equal(E.introduceCurrency(s).ok,false);assert.deepEqual(clone(s.resources),after);
 });
@@ -95,8 +95,8 @@ check('embargoes close trade and diplomacy and border patrol change real state a
  assert.ok(E.foreignAction(s,n.id,'embargo').ok);assert.equal(n.embargo,true);
  E.tick(s,.25);assert.equal(n.tradeLast.imported,0);assert.equal(n.tradeLast.exported,0);
  const food=s.resources.food,relation=n.relation;
- assert.ok(E.foreignAction(s,n.id,'envoy').ok);assert.equal(s.resources.food,food-12);assert.ok(n.relation>relation);
- while(n.relation<45){s.resources.food+=12;assert.ok(E.foreignAction(s,n.id,'envoy').ok);}
+ assert.ok(E.foreignAction(s,n.id,'envoy').ok);assert.equal(s.resources.food,food-12);assert.equal(n.relation,relation);assert.ok(n.diplomaticChanges.length);E.tick(s,3.25);assert.ok(n.relation>relation);
+ while(n.relation<45){s.resources.food+=12;assert.ok(E.foreignAction(s,n.id,'envoy').ok);E.tick(s,3.25);}
  const foodBeforePact=s.resources.food;assert.ok(E.foreignAction(s,n.id,'pact').ok);
  assert.equal(s.resources.food,foodBeforePact-20);assert.ok(n.pactUntil>=s.elapsed+10);
  const wood=s.resources.wood;assert.ok(E.foreignAction(s,n.id,'patrol').ok);assert.equal(s.resources.wood,wood-10);assert.ok(n.guardUntil>=s.elapsed+10);

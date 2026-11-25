@@ -3,7 +3,7 @@ import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 
 const context = vm.createContext({ window: {} });
-for (const name of ['terrain', 'society', 'warfare', 'logistics', 'minerals', 'economy', 'politics', 'territory', 'nations', 'engine']) {
+for (const name of ['terrain', 'society', 'warfare', 'logistics', 'minerals', 'economy', 'politics', 'territory', 'nations', 'statecraft', 'engine']) {
   vm.runInContext(await readFile(new URL(`../${name}.js`, import.meta.url), 'utf8'), context);
 }
 const E = context.window.CivilEngine, S = context.window.CivilSociety;
@@ -72,7 +72,7 @@ check('tax definitions remain hidden until their specific administration and pro
 
 check('population, agricultural land, transactions and actual border trade have distinct tax bases', () => {
   const state = city(true);
-  for (const id of ['poll', 'land', 'domestic', 'customs']) assert.ok(S.setTax(state, id, .1).ok);
+  for (const id of ['poll', 'land', 'domestic', 'customs']) {assert.ok(S.setTax(state, id, .1).ok);state.taxation.transitions[id].age=400;}
   const before = Object.fromEntries(S.taxQuote(state).lines.map(line => [line.id, line.base]));
   complete(state, 'estate');
   assert.ok(taxLine(state, 'land').base > before.land);
@@ -90,8 +90,8 @@ check('population, agricultural land, transactions and actual border trade have 
 check('quotes and reports do not collect money; an engine update collects each tax exactly once', () => {
   const state = city(true);
   state.neighbors = [];
-  assert.ok(S.setTax(state, 'poll', .08).ok);
-  assert.ok(S.setTax(state, 'land', .1).ok);
+  assert.ok(S.setTax(state, 'poll', .08).ok);state.taxation.transitions.poll.age=400;
+  assert.ok(S.setTax(state, 'land', .1).ok);state.taxation.transitions.land.age=400;
   const before = state.resources.treasury;
   const domesticRate = E.stats(state).domesticTreasuryRate;
   for (let index = 0; index < 6; index++) { E.stats(state); S.taxQuote(state); S.cultureSummary(state); }
@@ -106,7 +106,7 @@ check('quotes and reports do not collect money; an engine update collects each t
 check('tariffs follow actual trade, reduce trade incentives and stop when routes close', () => {
   const untaxed = city(true), taxed = city(true);
   for (const state of [untaxed, taxed]) assert.ok(E.foreignAction(state, state.neighbors[0].id, 'trade').ok);
-  assert.ok(S.setTax(taxed, 'customs', .2).ok);
+  assert.ok(S.setTax(taxed, 'customs', .2).ok);taxed.taxation.transitions.customs.age=400;
   assert.equal(taxLine(taxed, 'customs').revenue, 0);
   const before = taxed.resources.treasury, domestic = E.stats(taxed).domesticTreasuryRate;
   E.tick(untaxed, .25); E.tick(taxed, .25);
@@ -124,7 +124,7 @@ check('tariffs follow actual trade, reduce trade incentives and stop when routes
 
 check('tax burden affects production, confidence and privileged exemptions', () => {
   const state = city(true), before = E.stats(state), trust = state.stability;
-  for (const id of ['poll', 'land', 'domestic']) assert.ok(S.setTax(state, id, .18).ok);
+  for (const id of ['poll', 'land', 'domestic']) {assert.ok(S.setTax(state, id, .18).ok);state.taxation.transitions[id].age=400;}
   assert.ok(E.stats(state).foodProduction < before.foodProduction);
   assert.ok(E.stats(state).woodProduction < before.woodProduction);
   assert.ok(state.stability < trust);
@@ -145,7 +145,7 @@ check('tax burden affects production, confidence and privileged exemptions', () 
 
 check('empty populations, starvation and idle borders cannot generate tax revenue', () => {
   const state = city(true);
-  for (const id of ['poll', 'land', 'domestic', 'customs']) assert.ok(S.setTax(state, id, .1).ok);
+  for (const id of ['poll', 'land', 'domestic', 'customs']) {assert.ok(S.setTax(state, id, .1).ok);state.taxation.transitions[id].age=400;}
   state.resources.food = 0;
   assert.equal(S.taxQuote(state).total, 0);
   state.resources.food = 10000; state.population = 0;

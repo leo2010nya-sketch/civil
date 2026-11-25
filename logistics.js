@@ -27,7 +27,7 @@
     {id:'storehouse',name:'简易堆栈',icon:'warehouse',cost:{wood:30,stone:8},years:2,storage:350,footprint:24,small:true}
   ].map(d=>({category:'production',small:false,desc:d.id==='storehouse'?'扩充各类物资的存储空间。':`${Object.entries(d.input||{}).map(([k,v])=>resources.find(r=>r.id===k).name+' '+v).join('、')}${d.input?' → ':''}${Object.entries(d.output||{}).map(([k,v])=>resources.find(r=>r.id===k).name+' '+v).join('、')}/年。`,...d}));
   let hooks={};
-  const currency=s=>!!s.currency?.adopted;
+  const currency=s=>root.CivilStatecraft.currencyShare(s)>=.6;
   const count=(s,type)=>s.buildings.reduce((v,b)=>v+(b.status==='complete'&&b.type===type?(b.size||1):0),0);
   function initialize(s){
     s.storage ||= {base:{},last:{},lost:{}};s.storage.base ||= {};s.storage.last ||= {};s.storage.lost ||= {};
@@ -53,7 +53,7 @@
     const labor=clamp(workforce/Math.max(12,s.population*.54,s.buildings.length*2),0,1);
     for(const b of s.buildings){
       if(b.status!=='complete')continue;const d=buildings.find(d=>d.id===b.type);if(!d?.output)continue;
-      let factor=(b.size||1)*dt*labor*(root.CivilPolitics?.labor(s,b.settlementId)??1)*(currency(s)?s.economy?.activity??1:1);
+      let factor=(b.size||1)*dt*(root.CivilEngine?.technologySummary(s).production||1)*labor*(root.CivilPolitics?.labor(s,b.settlementId)??1)*(currency(s)?s.economy?.activity??1:1);
       const mining=root.CivilMinerals?.mapping[b.type];if(mining){const d=root.CivilMinerals.depositFor(s,b);factor*=root.CivilMinerals.factor(s,b);factor=Math.min(factor,d?root.CivilMinerals.remaining(s,d)/Object.values(buildings.find(d=>d.id===b.type).output)[0]:0);}
       for(const [key,rate] of Object.entries(d.input||{}))factor=Math.min(factor,s.resources[key]/rate);
       for(const [key,rate] of Object.entries(d.output))factor=Math.min(factor,Math.max(0,capacity(s,key)-s.resources[key])/rate);
@@ -67,6 +67,7 @@
     s.storage.last={gross,used,time:s.elapsed};fit(s);
   }
   function summary(s){initialize(s);const trade=foreignSummary(s);return {lines:availableResources(s).map(r=>({...r,stock:s.resources[r.id],capacity:capacity(s,r.id),production:s.storage.last.gross?.[r.id]||0,consumption:s.storage.last.used?.[r.id]||0,trade:trade[r.id+'Rate']||0,lost:s.storage.lost[r.id]||0})),warehouses:count(s,'warehouse'),depots:count(s,'storehouse')};}
+  const monetaryTrade=(s,n)=>currency(s)&&root.CivilStatecraft.currencyShare(n)>=.6;
   function configureTrade(s,id,plan){
     initialize(s);const n=s.neighbors.find(n=>n.id===id);if(!n)return {ok:false,message:'尚未接触这个国家。'};
     const allowed=new Set(availableResources(s).map(r=>r.id)),clean={imports:{},exports:{}};
@@ -75,9 +76,9 @@
       if(+value)clean[side][key]=+value;
     }
     if(resources.some(r=>clean.imports[r.id]&&clean.exports[r.id]))return {ok:false,message:'同一种物资不能同时进出口。'};
-    if(!currency(s)&&((Object.keys(clean.imports).length===0)!==(Object.keys(clean.exports).length===0)))return {ok:false,message:'实物交换需同时指定输入与输出物资。'};
+    if(!monetaryTrade(s,n)&&((Object.keys(clean.imports).length===0)!==(Object.keys(clean.exports).length===0)))return {ok:false,message:'实物交换需同时指定输入与输出物资。'};
     n.tradePlan=clean;n.tradeLast={imported:0,exported:0,tariff:0,flows:{},treasuryRate:0};
-    return {ok:true,message:currency(s)?'进出口计划已更新':'实物交换计划已更新'};
+    return {ok:true,message:monetaryTrade(s,n)?'进出口计划已更新':'实物交换计划已更新'};
   }
   function foreignSummary(s){
     const result={routes:0,treasuryRate:0,...Object.fromEntries(resources.map(r=>[r.id+'Rate',0]))};
@@ -105,9 +106,9 @@
     const flow=n.tradeLast, border=clamp(1-n.tension/140,.25,1)*(1-(root.CivilSociety?.taxQuote(s)?.tradePenalty||0));
     const lines=side=>Object.entries(n.tradePlan[side]).map(([key,rate])=>({r:{...resources.find(r=>r.id===key),price:root.CivilEconomy?.price(s,key,resources.find(r=>r.id===key).price)||resources.find(r=>r.id===key).price},amount:rate*border*dt}));
     const buys=lines('imports'),sells=lines('exports');
-    const importTax=currency(s)?(root.CivilTerritory?.tariffs(s,n).domestic??s.taxation?.rates.customs??0):0;
+    const importTax=monetaryTrade(s,n)?(root.CivilTerritory?.tariffs(s,n).domestic??s.taxation?.rates.customs??0):0;
     const record=(r,v)=>flow.flows[r.id]=(flow.flows[r.id]||0)+v/dt;
-    if(currency(s)){
+    if(monetaryTrade(s,n)){
       // Export first; proceeds may finance this interval's imports. Tariff is paid to the destination.
       for(const {r,amount} of sells){const v=Math.min(amount,s.resources[r.id],n.resources.treasury/r.price,Math.max(0,n.population*.1)/r.price*dt,Math.max(0,(root.CivilNations?.capacity(n,r.id)??9999999)-n.resources[r.id])),value=v*r.price,tax=value*(root.CivilTerritory?.tariffs(s,n).foreign??n.tariffRate);
         s.resources[r.id]-=v;n.resources[r.id]+=v;n.resources.treasury-=value-tax;s.resources.treasury+=value-tax;
@@ -130,5 +131,5 @@
     n.foodStock=n.resources.food;
   }
   function foreignTick(s,dt,{development=true}={}){initialize(s);if(development){if(root.CivilNations)root.CivilNations.advance(s,dt);else for(const n of s.neighbors)grow(s,n,dt);}for(const n of s.neighbors)trade(s,n,dt);}
-  root.CivilLogistics={resources,buildings,initialize,tick,summary,capacity,fit,configureTrade,foreignSummary,foreignTick,configure(h){hooks=h;}};
+  root.CivilLogistics={monetaryTrade,resources,buildings,initialize,tick,summary,capacity,fit,configureTrade,foreignSummary,foreignTick,configure(h){hooks=h;}};
 })(typeof window!=='undefined'?window:globalThis);

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 const context=vm.createContext({window:{}});
-for(const file of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','engine'])vm.runInContext(await readFile(new URL(`../${file}.js`,import.meta.url),'utf8'),context);
+for(const file of ['terrain','society','warfare','logistics','minerals','economy','politics','territory','nations','statecraft','engine'])vm.runInContext(await readFile(new URL(`../${file}.js`,import.meta.url),'utf8'),context);
 const {CivilEngine:E,CivilLogistics:L,CivilSociety:S}=context.window;
 const plain=v=>JSON.parse(JSON.stringify(v));
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} != ${b}`);
@@ -32,7 +32,7 @@ check('six resources and seven new buildings have real data and unlocks',()=>{
 check('production recipes consume inputs and supplies receive actual household use',()=>{
  const s=village();s.population=100;s.resources.iron=10;s.resources.cloth=20;s.resources.wood=100;s.resources.food=100;
  s.buildings.push(...['toolworks','weaving','apothecary'].map((type,i)=>({id:'recipe'+i,type,status:'complete',size:1,x:2100+i*30,y:2100})));
- L.tick(s,1);near(s.resources.iron,8);assert.ok(s.resources.tools>1&&s.resources.tools<1.5);assert.ok(s.resources.medicine>0);assert.ok(s.resources.food<100);assert.ok(s.storage.last.used.iron>0);
+ const tech=E.technologySummary(s).production;L.tick(s,1);near(s.resources.iron,10-2*tech);near(s.resources.tools,1.5*tech-.03);assert.ok(s.resources.medicine>0);assert.ok(s.resources.food<100);assert.ok(s.storage.last.used.iron>0);
 });
 check('no input or storage space means no processing and no phantom output',()=>{
  const s=village();s.resources.iron=0;s.buildings.push({id:'tools',type:'toolworks',status:'complete',size:1});const wood=s.resources.wood;L.tick(s,1);assert.equal(s.resources.tools,0);near(s.resources.wood,wood);
@@ -66,7 +66,7 @@ check('currency imports pay actual funds and exports pay the destination tariff'
  const stock=s.resources.food,treasury=s.resources.treasury;E.configureTrade(s,n.id,{imports:{food:10},exports:{}});L.foreignTick(s,1,{development:false});const bought=s.resources.food-stock;assert.ok(bought>0);near(treasury-s.resources.treasury,bought);
 });
 check('import tariff is charged then collected once, with a value-based tax base',()=>{
- const s=city(),n=s.neighbors[0];S.setTax(s,'customs',.2);E.configureTrade(s,n.id,{imports:{stone:5},exports:{}});E.foreignAction(s,n.id,'trade');
+ const s=city(),n=s.neighbors[0];S.setTax(s,'customs',.2);s.taxation.transitions.customs.age=400;E.configureTrade(s,n.id,{imports:{stone:5},exports:{}});E.foreignAction(s,n.id,'trade');
  const treasury=s.resources.treasury;L.foreignTick(s,.25);const flow=n.tradeLast;near(treasury-s.resources.treasury,flow.importValue*1.2*.25);
  near(S.taxQuote(s).lines.find(l=>l.id==='customs').base,flow.importValue);const before=s.resources.treasury;S.tick(s,.25);near(s.resources.treasury-before,S.taxQuote(s).total*.25);near(flow.tariff,flow.importValue*.2);
  const second=s.neighbors[1];E.configureTrade(s,second.id,{imports:{food:15},exports:{}});E.foreignAction(s,second.id,'trade');L.foreignTick(s,.25);S.tick(s,.25);
@@ -80,7 +80,7 @@ check('cash shortages, counterpart shortages, capacity, embargo and war block de
  n.embargo=true;L.foreignTick(s,.25);near(n.tradeLast.imported,0);n.embargo=false;E.mobilize(s,'levy');E.declareWar(s,n.id);L.foreignTick(s,.25);near(n.tradeLast.exported,0);
 });
 check('tax feedback records projected delta and cumulative actual receipts',()=>{
- const s=city(),before=S.taxQuote(s).total;assert.ok(S.setTax(s,'poll',.1).ok);near(s.taxation.lastChange.revenueDelta,S.taxQuote(s).total-before);
+ const s=city(),before=S.taxQuote(s).total;assert.ok(S.setTax(s,'poll',.1).ok);s.taxation.transitions.poll.age=400;near(s.taxation.lastChange.revenueDelta,S.taxQuote(s).total-before);
  const cash=s.resources.treasury;S.tick(s,.25);near(s.taxation.totalCollected,s.resources.treasury-cash);assert.ok(s.taxation.collections.poll>0);
 });
 check('policy feedback distinguishes coverage, conditional execution, penalties and expiry',()=>{

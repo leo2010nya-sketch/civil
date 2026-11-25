@@ -1,0 +1,9 @@
+{
+  "version": "5.5",
+  "date": "2026-11-15",
+  "engine_checks": 214,
+  "browser_checks": 3,
+  "real_save_recovery_checks": 22,
+  "browser_mode": "file://",
+  "runtime_errors": []
+}

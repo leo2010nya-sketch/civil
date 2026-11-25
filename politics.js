@@ -21,7 +21,7 @@
   function notify(s,title,body,c,major=false){const item={title,body,time:s.year,regionId:c?.id};s.unrest.history.unshift(item);s.unrest.history.length=Math.min(40,s.unrest.history.length);
     root.CivilEngine.notify(s,'news',title,body,{priority:major?'major':'minor',unrest:true,settlementId:c?.id,x:c?.x,y:c?.y,dedupe:'unrest:'+title+':'+(c?.id||'nobles')+':'+Math.floor(s.elapsed/8)});
   }
-  function actionOptions(s,c){const money=!!s.currency?.adopted;return [
+  function actionOptions(s,c){const money=root.CivilStatecraft.currencyShare(s)>=.6;return [
     {id:'relief',name:'地方救济',cost:{food:Math.ceil(Math.max(15,c.population*.1))},until:'reliefUntil',drawback:'耗用公共储粮，缓解八年生活压力。'},
     {id:'talks',name:'地方协商',cost:money?{treasury:Math.ceil(Math.max(12,c.population*.007))}:{food:12,wood:8},until:'talksUntil',drawback:'需组织支出，六年内降低地方对立。'},
     ...(c.id!==s.settlements[0].id?[{id:'autonomy',name:'约定地方自治',cost:money?{treasury:Math.ceil(Math.max(20,c.population*.012))}:{food:20,wood:20},until:'autonomyUntil',drawback:'十八年内缓解分离压力，地方征收与政令效力让步 10%。'}]:[])];}

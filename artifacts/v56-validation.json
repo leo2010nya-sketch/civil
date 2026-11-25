@@ -1,0 +1,9 @@
+{
+  "version": "5.6",
+  "verified": "2026-11-18",
+  "engine_checks": 226,
+  "browser_checks": 6,
+  "real_save_recovery_checks": 22,
+  "runtime_errors": [],
+  "browser_mode": "file://"
+}

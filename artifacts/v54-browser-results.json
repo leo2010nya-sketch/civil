@@ -1,0 +1,14 @@
+{
+  "passed": 8,
+  "checks": [
+    "development path is reachable from toolbar and shows three immediate nodes only",
+    "craft buildings name illustrative products without adding inventory goods",
+    "mineral overlay has both panel toggle and persistent exit",
+    "mineral map can be switched off after closing the panel",
+    "economic page compares current returns with explicitly estimated capacity",
+    "envoy schedules gradual diplomacy instead of instant relationship changes",
+    "mobile path and toolbar remain inside viewport",
+    "no browser runtime exceptions"
+  ],
+  "errors": []
+}

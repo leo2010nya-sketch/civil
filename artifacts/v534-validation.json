@@ -1,0 +1,96 @@
+{
+  "version": "5.3.4",
+  "date": "2026-11-12",
+  "result": "passed",
+  "engine": {
+    "passed": 196,
+    "suites": [
+      {
+        "suite": "safe save storage",
+        "passed": 10
+      },
+      {
+        "suite": "city, currency and exploration engine",
+        "passed": 12
+      },
+      {
+        "suite": "systems engine",
+        "passed": 21
+      },
+      {
+        "suite": "warfare and era",
+        "passed": 11
+      },
+      {
+        "suite": "policy initiation cost",
+        "passed": 8
+      },
+      {
+        "suite": "society integration",
+        "passed": 12
+      },
+      {
+        "suite": "progression, industrialization and resistance",
+        "passed": 15
+      },
+      {
+        "suite": "governance and inheritance",
+        "passed": 13
+      },
+      {
+        "suite": "shared population growth",
+        "passed": 6
+      },
+      {
+        "suite": "shared foreign rules and adaptive scheduling",
+        "passed": 18
+      },
+      {
+        "suite": "terrain minerals and macroeconomic",
+        "passed": 16
+      },
+      {
+        "suite": "politics territory and war-objective",
+        "passed": 20
+      },
+      {
+        "suite": "expansion, settlement and naming",
+        "passed": 8
+      },
+      {
+        "suite": "shared prosperity trust",
+        "passed": 7
+      },
+      {
+        "suite": "land selection demolition and footprint",
+        "passed": 9
+      },
+      {
+        "suite": "third-draft engine",
+        "passed": 10
+      }
+    ]
+  },
+  "browser": {
+    "passed": 30,
+    "featureChecks": 8,
+    "realLegacySaveChecks": 22,
+    "artifacts": [
+      "artifacts/v534-browser-results.json",
+      "artifacts/v534-file-recovery.json"
+    ]
+  },
+  "screenshots": [
+    "artifacts/v534-01-land.png",
+    "artifacts/v534-02-demolition.png",
+    "artifacts/v534-03-pixel-farm.png",
+    "artifacts/v534-04-mobile.png"
+  ],
+  "syntaxChecks": 7,
+  "diffCheck": "passed",
+  "limitations": [
+    "Existing layouts in old saves are preserved; overlapping legacy structures are not automatically moved or deleted.",
+    "Historical city housing and agriculture use representative asset capacities where coastlines restrict plots.",
+    "Reclaimed materials are limited by storage space; unknown historical costs use base definition costs."
+  ]
+}

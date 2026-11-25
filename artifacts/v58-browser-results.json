@@ -1,0 +1,15 @@
+{
+  "passed": 9,
+  "checks": [
+    "institutions show a visible city planning enactment button",
+    "enactment deducts real resources and starts at zero coverage",
+    "automation exposes planning progress and pause button",
+    "demolition stage appears in the planning panel",
+    "reconstruction and recovered materials appear after demolition",
+    "pause control changes actual planning state",
+    "real satellite villages are counted and have map houses",
+    "mobile planning panel fits the viewport",
+    "no browser runtime errors"
+  ],
+  "errors": []
+}

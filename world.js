@@ -154,7 +154,7 @@
       const settlements = (s.settlements || []).map(p => `${p.id}:${p.x}:${p.y}`).join('|');
       const buildings = (s.buildings || []).map(b => `${b.id}:${b.type}:${b.x}:${b.y}:${b.size}:${b.status}:${b.settlementId}`).join('|');
       const explored = (s.explored || []).map(p => `${p.x}:${p.y}:${p.radius}`).join('|');
-      const nations = this.nationCities().map(n => `${n.nationId}:${n.id}:${n.assets?.length||0}:${n.x}:${n.y}:${n.population >= 1000}:${Math.min(8,Math.max(0,Math.floor(Math.log2(Math.max(1,n.population/1000)))))}`).join('|');
+      const nations = this.nationCities().map(n => `${n.nationId}:${n.id}:${(n.assets||[]).map(b=>b.id+b.status).join(',')}:${n.x}:${n.y}:${n.population >= 1000}:${Math.min(8,Math.max(0,Math.floor(Math.log2(Math.max(1,n.population/1000)))))}`).join('|');
       const forest = Object.keys(s.forest?.removed || {}).filter(id => s.forest.removed[id]).join('|');
       const ground = `${this.seed}:${view}:${settlements}`;
       const objects = `${ground}:${this.currentEra}:${buildings}:${explored}:${nations}:${forest}`;
@@ -293,6 +293,7 @@
         const water = []; this.drawGroundDetail(c, view, water); this.drawWater(c, water, time);
       }
       this.drawNations(c, time);
+      this.drawNationalBorders(c);
       if (cached) {
         if (this.mapCache.surface?.key !== keys.surface) {
           this.releaseLayer(this.mapCache.surface);
@@ -343,10 +344,6 @@
     }
 
     drawSurface(c, view) {
-      for (const t of this.trees) if (this.state.forest?.removed[t.id] && this.inView(t, view)) {
-        c.fillStyle = '#877a4c44'; c.beginPath(); c.ellipse(t.x, t.y, 12, 9, 0, 0, TAU); c.fill();
-        c.fillStyle = '#ba9b64'; c.fillRect(t.x - 2, t.y - 2, 4, 3);
-      }
       this.drawRoads(c);
     }
 
@@ -429,12 +426,12 @@
 
     nationBuildings() {
       const nations = this.nationCities().filter(n => this.isExplored(n.x, n.y));
-      const key = `${this.seed}:${this.currentEra}:${nations.map(n => `${n.nationId}:${n.id}:${n.assetVersion||0}:${n.assets?.length||0}:${n.x}:${n.y}:${n.population >= 1000}:${Math.min(8,Math.max(0,Math.floor(Math.log2(Math.max(1,n.population/1000)))))}`).join('|')}`;
+      const key = `${this.seed}:${this.currentEra}:${nations.map(n => `${n.nationId}:${n.id}:${n.assetVersion||0}:${(n.assets||[]).map(b=>b.id+b.status).join(',')}:${n.x}:${n.y}:${n.population >= 1000}:${Math.min(8,Math.max(0,Math.floor(Math.log2(Math.max(1,n.population/1000)))))}`).join('|')}`;
       if (this.foreignBuildingKey === key) return this.foreignBuildings;
       this.foreignBuildingKey = key;
       this.foreignBuildings = [];
       for (const n of nations) {
-        if(n.assets?.length){this.foreignBuildings.push(...n.assets.filter(b=>b.status!=='failed').map(b=>({...b,nationId:n.nationId})));continue;}
+        if(n.assets?.length){this.foreignBuildings.push(...n.assets.map(b=>({...b,nationId:n.nationId})));continue;}
         const developed = this.currentEra !== 'village' || n.population >= 1000;
         const buildings = [{ x:n.x, y:n.y, type:developed?'castle':'council', size:1.5, status:'complete', nationId:n.nationId }];
         for (let i = 0; i < 28 + 4 * Math.min(8,Math.max(0,Math.floor(Math.log2(Math.max(1,n.population/1000))))); i++) {
@@ -482,6 +479,21 @@
           c.strokeStyle='#af9a6a49';c.lineWidth=4;c.lineCap='round';
           for(let i=0;i<4;i++){const a=i*TAU/4+.3;c.beginPath();c.moveTo(n.x,n.y);c.quadraticCurveTo(n.x+Math.cos(a+.1)*55,n.y+Math.sin(a+.1)*45,n.x+Math.cos(a)*105,n.y+Math.sin(a)*80);c.stroke();}
         }
+      }
+      c.restore();
+    }
+
+    drawNationalBorders(c) {
+      const z=this._view.zoom;c.save();
+      for(const city of this.state.settlements||[]){
+        const radius=city.territoryRadius||city.radius||420;
+        c.beginPath();c.ellipse(city.x,city.y,radius,radius*.84,0,0,TAU);c.strokeStyle='rgba(236,232,197,.78)';c.lineWidth=1.7/z;c.setLineDash([]);c.stroke();
+      }
+      for(const n of this.nationCities()){
+        if(!n.capital||!this.isExplored(n.x,n.y))continue;
+        const radius=n.radius||230,points=Array.from({length:48},(_,i)=>{const a=i*TAU/48,r=radius*(.94+noise(Math.cos(a)*2+6,Math.sin(a)*2+6,this.seed+n.x)*.13);return{x:n.x+Math.cos(a)*r,y:n.y+Math.sin(a)*r};});
+        c.beginPath();points.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();
+        c.strokeStyle='rgba(235,240,218,.72)';c.lineWidth=1.7/z;c.setLineDash([]);c.stroke();
       }
       c.restore();
     }
@@ -704,12 +716,14 @@
     }
 
     drawBuilding(c, b, time) {
-      if (b.status === 'failed') return;
+      if (b.status === 'failed') {c.save();c.translate(b.x,b.y);c.scale(Math.sqrt(b.size||1),Math.sqrt(b.size||1));for(let i=0;i<12;i++){c.fillStyle=i%2?'#817961':'#555c4a';c.fillRect(-17+i%4*9,-9+Math.floor(i/4)*8,7,5);}c.restore();return;}
       const size = Number(b.size) || 1, scale = Math.sqrt(size);
       c.save(); c.translate(b.x, b.y); c.scale(scale, scale);
-      const incomplete = b.status !== 'complete' && Number(b.progress) < 100;
+      const demolishing=b.status==='demolishing';
+      const incomplete = !demolishing&&b.status !== 'complete' && Number(b.progress) < 100;
+      if(demolishing)c.globalAlpha=.42;
       if (incomplete) c.globalAlpha = .65;
-      const era = this.currentEra || this.visualEra(),land=this.sample(b.x,b.y);
+      const era = this.currentEra || this.visualEra(),land={...this.sample(b.x,b.y),region:window.CivilEngine.settlementArchitecture(this.state,b)};
       if(land.landform==='hill'){c.fillStyle='#878371';for(let i=0;i<3;i++)c.fillRect(-19+i*2,8+i*3,38-i*4,2);}
       if(this.drawRegionalBuilding(c,b,land,era)){}
       else if(b.type==='bronzesmith'){this.drawLogistics(c,'toolworks');c.fillStyle='#85ad8b';c.fillRect(5,7,10,3);}
@@ -765,6 +779,7 @@
         if (b.type === 'council') { c.strokeStyle = '#74613e'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(-w / 2 - 5, 6); c.lineTo(-w / 2 - 5, -21); c.stroke(); c.fillStyle = '#ac7250'; c.beginPath(); c.moveTo(-w / 2 - 5, -21); c.quadraticCurveTo(-w / 2 - 11, -20, -w / 2 - 7, -15); c.lineTo(-w / 2 - 5, -16); c.fill(); }
         if (!incomplete && this._view.zoom > .8 && (b.type === 'hut' || b.type === 'workshop')) this.drawSmoke(c, w / 2 - 2, -h / 2 - 1, time, b.x);
       }
+      if(demolishing){c.globalAlpha=1;c.fillStyle='#ccaa76';for(let i=0;i<4;i++)c.fillRect(-18+i*12,15,7,3);c.fillStyle='#263429';c.fillRect(-18,21,36,3);c.fillStyle='#cfaa77';c.fillRect(-18,21,36*(b.demolition?.progress||0)/100,3);}
       if (incomplete) {
         c.globalAlpha = .88; c.strokeStyle = '#b5a67e'; c.lineWidth = 1;
         for (let i = -1; i <= 1; i++) { c.beginPath(); c.moveTo(i * 12, -16); c.lineTo(i * 12 + 1, 16); c.stroke(); }
@@ -997,8 +1012,9 @@
             c.fillStyle='#a7aa8b';c.fillRect(x-5,y-15,10,3);c.fillRect(x-5,y-18,4,4);
             c.strokeStyle='#555f50';c.lineWidth=.65;c.beginPath();c.moveTo(x-5,y-7);c.lineTo(x+5,y-7);c.moveTo(x,y-13);c.lineTo(x,y-7);c.moveTo(x-3,y-7);c.lineTo(x-3,y);c.stroke();
           }else{
-            c.fillStyle=i%2?'#917b51':'#ab9363';c.beginPath();c.moveTo(x-2,y+2);c.lineTo(x-2,y-12);c.lineTo(x,y-17);c.lineTo(x+2,y-12);c.lineTo(x+2,y+2);c.closePath();c.fill();
-            c.fillStyle='#655335';c.fillRect(x-2,y-6,4,2);
+            c.fillStyle=i%2?'#807050':'#96815a';c.fillRect(x-5,y-17,10,21);
+            c.fillStyle='#baa174';c.fillRect(x-5,y-19,10,3);
+            c.fillStyle='#594b34';c.fillRect(x-4,y-16,1,19);c.fillRect(x-5,y-6,10,2);
           }
         }
         if(stone)for(const a of [Math.PI*.05,Math.PI*.95,Math.PI*1.5]){
@@ -1134,8 +1150,17 @@
     }
 
     drawFarm(c, b) {
-      c.save(); c.rotate(-.15); c.fillStyle = '#837447'; c.beginPath(); c.moveTo(-24, -17); c.quadraticCurveTo(0, -21, 25, -16); c.lineTo(27, 17); c.quadraticCurveTo(0, 22, -25, 16); c.closePath(); c.fill();
-      for (let i = 0; i < 8; i++) { c.strokeStyle = i % 2 ? '#575b34' : '#a5a15b'; c.lineWidth = 2; c.beginPath(); c.moveTo(-20 + i * 6, -14); c.quadraticCurveTo(-22 + i * 6, 0, -20 + i * 6, 15); c.stroke(); }
+      const land=b?this.sample(b.x,b.y):null,dry=land?.region==='arid';
+      c.save();c.imageSmoothingEnabled=false;
+      c.fillStyle=dry?'#806341':'#615437';c.fillRect(-27,-20,54,40);
+      c.fillStyle='#92815b';c.fillRect(-27,-20,54,2);c.fillRect(-27,-18,2,38);
+      const colors=dry?['#a19052','#b09b60','#8b8950']:['#7e8b4f','#a6a05b','#697946'];
+      for(let row=0;row<7;row++)for(let col=0;col<12;col++){
+        const x=-23+col*4,y=-16+row*5,shade=(col*7+row*3)%colors.length;
+        c.fillStyle='#403e29';c.fillRect(x,y+3,3,1);c.fillStyle=colors[shade];c.fillRect(x,y,2,3);c.fillStyle='#b9b376';c.fillRect(x,y,1,1);
+      }
+      c.fillStyle=dry?'#537870':'#536b55';c.fillRect(-1,-18,2,36);
+      c.fillStyle='#8d7954';for(const x of [-27,25])for(const y of [-20,18])c.fillRect(x,y,2,3);
       c.restore();
     }
 
@@ -1285,10 +1310,16 @@
     }
 
     drawPreview(c) {
-      const p = this.pointer, info = this.sample(p.x, p.y), valid = (!info.water || this.buildType === 'bridge') && this.isExplored(p.x, p.y);
-      c.save(); c.globalAlpha = .6; this.drawBuilding(c, { x: p.x, y: p.y, type: this.buildType || 'hut', status: 'complete', size: this.buildSize }, 0); c.globalAlpha = 1;
-      const scale = Math.sqrt(this.buildSize);
-      c.strokeStyle = valid ? '#d1dcaf' : '#d48e76'; c.lineWidth = 1.2 / this._view.zoom; c.setLineDash([3, 3]); c.beginPath(); c.ellipse(p.x, p.y + 7, 24 * scale, 16 * scale, 0, 0, TAU); c.stroke(); c.restore();
+      const p = this.pointer, info = this.sample(p.x, p.y), candidate={x:p.x,y:p.y,type:this.buildType||'hut',size:this.buildSize};
+      const bounds=window.CivilEngine.buildingBounds(candidate),occupied=window.CivilEngine.occupiedBuildings(this.state);
+      const valid=(!info.water||this.buildType==='bridge')&&this.isExplored(p.x,p.y)&&!occupied.some(b=>window.CivilEngine.buildingsOverlap(candidate,b));
+      const cell=48,step=cell/Math.sqrt(this.buildSize),left=Math.floor(bounds.left/step)*step,top=Math.floor(bounds.top/step)*step,right=Math.ceil(bounds.right/step)*step,bottom=Math.ceil(bounds.bottom/step)*step;
+      c.save();c.strokeStyle='rgba(229,237,214,.24)';c.lineWidth=.8/this._view.zoom;c.setLineDash([2/this._view.zoom,4/this._view.zoom]);
+      for(let x=left;x<=right;x+=step){c.beginPath();c.moveTo(x,top);c.lineTo(x,bottom);c.stroke();}
+      for(let y=top;y<=bottom;y+=step){c.beginPath();c.moveTo(left,y);c.lineTo(right,y);c.stroke();}
+      c.globalAlpha=.72;this.drawBuilding(c,{x:p.x,y:p.y,type:this.buildType||'hut',status:'complete',size:this.buildSize},0);c.globalAlpha=1;
+      c.fillStyle=valid?'rgba(190,219,157,.22)':'rgba(214,115,91,.3)';c.fillRect(bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top);
+      c.strokeStyle=valid?'#d1dcaf':'#d48e76';c.lineWidth=1.4/this._view.zoom;c.setLineDash([4/this._view.zoom,4/this._view.zoom]);c.strokeRect(bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top);c.restore();
     }
 
     drawFog(c, key) {
@@ -1393,7 +1424,7 @@
         if(nation){this.selected={kind:'nation',nationId:nation.nationId,cityId:nation.id,x:nation.x,y:nation.y};this.dirty=true;this.callbacks.onSelect?.(this.selected);return;}
         const hostile=(this.state.hostiles||[]).find(h=>Math.hypot(h.x-p.x,h.y-p.y)<24/Math.min(1,this._view.zoom));
         if(hostile){this.callbacks.onSelect?.({kind:'hostile',hostileId:hostile.id,x:hostile.x,y:hostile.y});return;}
-        for (const b of this.state.buildings || []) { if (Math.hypot(b.x - p.x, b.y - p.y) < 17 * Math.sqrt(Number(b.size) || 1)) { selected = { kind: 'building', buildingId: b.id, x: b.x, y: b.y, type: b.type }; break; } }
+        for (const b of [...(this.state.buildings || [])].sort((a,b)=>b.y-a.y)) { const bounds=window.CivilEngine.buildingBounds(b);if(p.x>=bounds.left&&p.x<=bounds.right&&p.y>=bounds.top&&p.y<=bounds.bottom) { selected = { kind: 'building', buildingId: b.id, x: b.x, y: b.y, type: b.type }; break; } }
         if (!selected) selected = { kind: 'region', ...p, ...info, explored: this.isExplored(p.x, p.y) };
         this.selected = selected; this.dirty = true;
         if (this.callbacks.onSelect) this.callbacks.onSelect(selected);
